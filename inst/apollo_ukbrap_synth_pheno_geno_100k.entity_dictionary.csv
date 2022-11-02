@@ -1,0 +1,3 @@
+entity,entity_title,entity_description,entity_label_plural,entity_label_singular
+participant,Participant,Participant data,Participants,Participant
+pheno_geno_sample_ids,pheno_geno_sample_ids,pheno_geno_sample_ids,pheno_geno_sample_ids,pheno_geno_sample_ids
