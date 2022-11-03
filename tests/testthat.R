@@ -8,7 +8,5 @@
 
 library(testthat)
 library(dxr)
-library(dplyr)
-library(glue)
 
-test_check("dxr")
+test_check("dxhelper")

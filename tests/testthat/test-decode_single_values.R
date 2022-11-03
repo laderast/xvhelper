@@ -24,6 +24,7 @@ test_that("decode single values", {
 
 })
 
+
 test_that("decode multi-values",{
   load("data_dict.rda")
   load("coding_dict.rda")

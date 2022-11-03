@@ -3,44 +3,30 @@ get_project_id <- function() {
 
 }
 
-get_field_list <- function(project_id) {
-  test <- tempdir()
-  system("dx extract_data --ddd ")
-
-}
-
-search_field_list <- function() {
+get_field_list <- function(dataset_id) {
+  tmp <- tempdir()
+  cmd <- glue::glue("dx extract_data --ddd {dataset_id} ")
+  system(cmd)
+  dict <- read.csv(tmp, pattern=(".data"))
+  return(dict)
 
 }
 
 #' Title
 #'
-#' @param single_code
-#' @param coded_col_df
-#' @param curr_col
+#' @param dict
 #'
 #' @return
 #' @export
 #'
 #' @examples
-decode_single <- function(single_code, coded_col_df, curr_col) {
-  single_code <- ifelse(
-    typeof(single_code) != "character",
-    ifelse(
-      as.character(single_code) %in% (coded_col_df %>% filter(ent_field == curr_col) %>% pull(code)),
-      as.character(single_code),
-      paste(as.character(single_code), ".0", sep="")
-    ),
-    single_code
-  )
-  ifelse(single_code %in% (coded_col_df %>% filter(ent_field == curr_col) %>% pull(code)),
-         toString(coded_col_df %>% filter(
-           ent_field == curr_col,
-           code == single_code
-         ) %>% pull(meaning)),
-         single_code
-  )
+search_field_list <- function(dict) {
+  dict |>
+    select(title, entity, name, coding_name, units) |>
+    reactable::reactable()
 }
+
+
 
 #' Title
 #'
@@ -92,11 +78,18 @@ map_categories <- function(column_name, df_to_convert, coded_col_df){
 map_categories_multi_column <- function(column_name, df_to_convert, coded_col_df){
 
   multi_code <- df_to_convert[[column_name]]
+
+  if(is.numeric(multi_code)) {
+    out_frame <- data.frame(multi_code) |>
+      dplyr::rename({{column_name}} := multi_code)
+
+    return(out_frame)
+  }
   #multi_code <-
   multi_code_substr <- stringr::str_replace_all(multi_code, '\\[|\\]|\\"', "")
   multi_code_vector <- purrr::map(multi_code_substr, ~(stringr::str_split(.x, ",")))
   multi_code_frame <- purrr::map(multi_code_vector,
-                                 ~(data.frame(code=.x[[1]], col=column_name)))
+                                 ~(tibble::tibble(code=.x[[1]]) |> dplyr::mutate(col=column_name)))
   multi_code_frame <- purrr::map(multi_code_frame,
                                  ~(.x |> dplyr::rename({{column_name}}:=code, ent_field=col)))
   multi_column <- purrr::map(multi_code_frame,
@@ -116,23 +109,64 @@ map_categories_multi_column <- function(column_name, df_to_convert, coded_col_df
 #' @param coded_col_df
 #'
 #' @return
-#' @export
 #'
 #' @examples
-map_data_frame <- function(df, coded_col_df){
+map_data_frame <- function(df, coded_col_df, drop_sparse){
 
     colstatus <- purrr::map_df(colnames(df),
                                ~(coded_col_df |>
                                    dplyr::filter(ent_field==.x) |>
-                                   dplyr::select(ent_field ,is_sparse_coding, is_multi_select) |>
+                                   dplyr::select(ent_field,is_sparse_coding, is_multi_select, coding_name) |>
                                    dplyr::distinct()
-                                 ))
-    colstatus |>
-      dplyr::mutate()
+                                 )
+                               )
+    colstatus <- colstatus |>
+      dplyr::mutate(single = dplyr::case_when(is.na(is_multi_select) ~ TRUE,
+                                      is.na(coding_name) ~ NA,
+                                       TRUE ~ FALSE))
 
-  return(colstatus)
+    if(drop_sparse){
+      colstatus <- colstatus |>
+        dplyr::filter(is.na(is_sparse_coding))
+    }
+
+
+    return(colstatus)
 
 }
+
+map_columns <- function(colstatus, df, coded_col_df){
+
+  results <- colstatus |>
+    dplyr::rowwise() |>
+    dplyr::mutate(data_col =
+                    dplyr::case_when(is.na(coding_name) ~ list(df[[ent_field]]),
+                                     single == TRUE ~ list(map_categories(column_name = ent_field,df, coded_col_df)),
+                                     single == FALSE ~ list(map_categories_multi_column(column_name = ent_field, df, coded_col_df)),
+
+                    ))
+  return(results)
+}
+
+#' Title
+#'
+#' @param df
+#' @param coded_col_df
+#' @param drop_sparse
+#'
+#' @return
+#' @export
+#'
+#' @examples
+decode_categories <- function(df, coded_col_df, drop_sparse=TRUE){
+
+  to_process <- map_data_frame(df, coded_col_df, drop_sparse)
+  out_process <- map_columns(to_process, df, coded_col_df)
+  out_frame <- Reduce(dplyr::bind_cols, out_process$data_col)
+  colnames(out_frame) <- out_process$ent_field
+  return(out_frame)
+}
+
 
 # Decoding function
 #' Title

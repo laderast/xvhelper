@@ -3,7 +3,6 @@
 export(decode_fun)
 export(decode_fun_sparse)
 export(decode_multi_sparse)
-export(decode_single)
 export(map_categories)
 export(map_categories_multi_column)
 export(map_data_frame)
