@@ -207,7 +207,8 @@ decode_column_names <- function(out_frame, coded_col_df) {
 
   coded_col_df <- coded_col_df |>
     dplyr::select(ent_field, title) |>
-    dplyr::distinct()
+    dplyr::distinct() |>
+    dplyr::filter(ent_field %in% colnames(out_frame))
 
   names_to_replace <- tibble::tibble(orig_names =colnames(out_frame))
   replacements <- names_to_replace |>
