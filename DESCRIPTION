@@ -21,5 +21,6 @@ Config/testthat/edition: 3
 Imports: 
     dplyr,
     glue,
+    janitor,
     stringr,
     tibble

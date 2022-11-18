@@ -40,3 +40,14 @@ test_that("decode multi-values",{
   expect_equal(nrow(test_frame), nrow(out_frame))
 
 })
+
+
+test_that("decode single", {
+  load("data_dict.rda")
+  load("coding_dict.rda")
+  load("cohort.rda")
+  coded_col_df <- merge_coding_data_dict(coding_dict, data_dict)
+  cohort2 <- cohort |> dplyr::select(participant.p100240_i0, participant.p1508_i0)
+  out_frame <- decode_single(cohort2, coded_col_df)
+  expect_true(is.data.frame(out_frame))
+})
