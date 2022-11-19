@@ -189,7 +189,7 @@ decode_categories <- function(df, coded_col_df, drop_sparse=TRUE){
 }
 
 
-#' Title
+#' Returns cleaned field titles for a cohort dataset
 #'
 #' @param out_frame
 #' @param coded_col_df
@@ -198,22 +198,22 @@ decode_categories <- function(df, coded_col_df, drop_sparse=TRUE){
 #' @export
 #'
 #' @examples
-decode_column_names <- function(out_frame, coded_col_df) {
+decode_column_names <- function(cohort, coded_col_df) {
 
   coded_col_df <- coded_col_df |>
     dplyr::select(ent_field, title) |>
     dplyr::distinct() |>
-    dplyr::filter(ent_field %in% colnames(out_frame))
+    dplyr::filter(ent_field %in% colnames(cohort))
 
-  names_to_replace <- tibble::tibble(orig_names =colnames(out_frame))
+  names_to_replace <- tibble::tibble(orig_names =colnames(cohort))
   replacements <- names_to_replace |>
     dplyr::left_join(y=coded_col_df, by=c("orig_names"="ent_field")) |>
     dplyr::pull(title) |>
     janitor::make_clean_names()
 
-  colnames(out_frame) <- replacements
+  colnames(cohort) <- replacements
 
-  out_frame
+  cohort
 
 }
 
@@ -245,8 +245,8 @@ merge_coding_data_dict <- function(coding_dict, data_dict) {
 
 #' Decodes variables with single coded entries
 #'
-#' @param cohort
-#' @param coding
+#' @param cohort - A cohort or dataset extracted using `dx extract data`
+#' @param coding - Combined coding/data dictionary generated from `merge_coding_data_dict`
 #'
 #' @return data.frame with single coded columns decoded
 #' @export
@@ -293,21 +293,20 @@ decode_single <- function(cohort, coding){
 
 
 
-
-
-
 #' Decodes Multi Category variables
 #'
 #' @param cohort
 #' @param coding
 #'
-#' @return Labeled data frame where list columns are decoded
+#' @return Labeled data frame where multi category columns are decoded
 #' @export
 #'
 #' @examples
 #' data(coding_dict)
 #' data(cohort)
 #' data(data_dict)
+#'
+#'
 decode_multi <- function(cohort, coding){
   coding_table <- build_coding_table(coding)
 
@@ -360,6 +359,15 @@ build_coding_table <- function(coding){
 #' @export
 #'
 #' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
+#'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'
+#' cohort |>
+#'   decode_df(cdata)
+#'
 decode_df <- function(df, coding){
   df |>
     decode_single(coding) |>

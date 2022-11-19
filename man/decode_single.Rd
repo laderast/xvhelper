@@ -7,7 +7,13 @@
 decode_single(cohort, coding)
 }
 \arguments{
-\item{coding}{}
+\item{cohort}{\itemize{
+\item A cohort or dataset extracted using \verb{dx extract data}
+}}
+
+\item{coding}{\itemize{
+\item Combined coding/data dictionary generated from \code{merge_coding_data_dict}
+}}
 }
 \value{
 data.frame with single coded columns decoded

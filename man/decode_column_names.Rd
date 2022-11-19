@@ -2,9 +2,9 @@
 % Please edit documentation in R/project.R
 \name{decode_column_names}
 \alias{decode_column_names}
-\title{Title}
+\title{Returns cleaned field titles for a cohort dataset}
 \usage{
-decode_column_names(out_frame, coded_col_df)
+decode_column_names(cohort, coded_col_df)
 }
 \arguments{
 \item{coded_col_df}{}
@@ -13,5 +13,5 @@ decode_column_names(out_frame, coded_col_df)
 
 }
 \description{
-Title
+Returns cleaned field titles for a cohort dataset
 }

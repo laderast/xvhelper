@@ -10,7 +10,7 @@ decode_multi(cohort, coding)
 \item{coding}{}
 }
 \value{
-Labeled data frame where list columns are decoded
+Labeled data frame where multi category columns are decoded
 }
 \description{
 Decodes Multi Category variables
@@ -19,4 +19,6 @@ Decodes Multi Category variables
 data(coding_dict)
 data(cohort)
 data(data_dict)
+
+
 }
