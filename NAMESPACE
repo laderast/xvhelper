@@ -2,8 +2,8 @@
 
 export(decode_categories)
 export(decode_column_names)
+export(decode_df)
 export(decode_multi)
-export(decode_multi_column)
 export(decode_single)
 export(map_categories)
 export(map_categories_multi_column)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/project.R
 \name{decode_single}
 \alias{decode_single}
-\title{Title}
+\title{Decodes variables with single coded entries}
 \usage{
 decode_single(cohort, coding)
 }
@@ -10,8 +10,8 @@ decode_single(cohort, coding)
 \item{coding}{}
 }
 \value{
-
+data.frame with single coded columns decoded
 }
 \description{
-Title
+Decodes variables with single coded entries
 }

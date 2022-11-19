@@ -4,7 +4,7 @@
 \alias{map_data_frame}
 \title{Title}
 \usage{
-map_data_frame(df, coded_col_df)
+map_data_frame(df, coded_col_df, drop_sparse)
 }
 \arguments{
 \item{coded_col_df}{}

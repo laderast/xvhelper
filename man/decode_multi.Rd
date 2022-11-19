@@ -2,7 +2,7 @@
 % Please edit documentation in R/project.R
 \name{decode_multi}
 \alias{decode_multi}
-\title{Title}
+\title{Decodes Multi Category variables}
 \usage{
 decode_multi(cohort, coding)
 }
@@ -10,8 +10,13 @@ decode_multi(cohort, coding)
 \item{coding}{}
 }
 \value{
-
+Labeled data frame where list columns are decoded
 }
 \description{
-Title
+Decodes Multi Category variables
+}
+\examples{
+data(coding_dict)
+data(cohort)
+data(data_dict)
 }

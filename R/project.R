@@ -1,8 +1,3 @@
-get_project_id <- function() {
-  system("dx env | ")
-
-}
-
 get_field_list <- function(dataset_id) {
   tmp <- tempdir()
   cmd <- glue::glue("dx extract_data --ddd {dataset_id} ")
@@ -248,12 +243,12 @@ merge_coding_data_dict <- function(coding_dict, data_dict) {
 
 }
 
-#' Title
+#' Decodes variables with single coded entries
 #'
 #' @param cohort
 #' @param coding
 #'
-#' @return
+#' @return data.frame with single coded columns decoded
 #' @export
 #'
 #' @examples
@@ -296,71 +291,23 @@ decode_single <- function(cohort, coding){
   cohort
 }
 
-decode_single_sparse <- function(cohort, coding){
-  coding_table <- coding |> dplyr::select(ent_field, is_multi_select, is_sparse_coding) |>
-    distinct()
-
-  sparse <- coding_table |>
-    dplyr::filter(is_sparse_coding=="yes") |>
-    dplyr::pull(ent_field)
-
-  cohort <- cohort |>
-    dplyr::mutate(rown=dplyr::row_number())
-
-  new_vals <- cohort |>
-    dplyr::select(rown, sparse) |>
-    decode_single(coding)
-
-  out <- cohort |>
-    dplyr::inner_join(y=new_vals, by="rown")
-
-  dat_x <- out %>% select(ends_with("x"))
-  dat_y <- out %>% select(ends_with("y"))
-
-  out[, grepl("x$", names(out))] <- map2(dat_x, dat_y, ~coalesce(.y, .x))
-
-  out
-
-}
-
-
-#' Title
-#'
-#' @param cohort
-#' @param multi_column
-#' @param coding
-#'
-#' @return
-#' @export
-#'
-#' @examples
-decode_multi_column <- function(cohort, multi_column, coding){
-
-  cohort |>
-    dplyr::select({{multi_column}}) |>
-    dplyr::mutate(rown=dplyr::row_number()) |>
-    dplyr::mutate(code :=
-                    stringr::str_replace_all({{multi_column}}, '\\[|\\]|\\"', "")) |>
-    tidyr::separate_rows(code, sep = ",") |>
-    dplyr::inner_join(y=coding, by=c("code"="code")) |>
-    dplyr::select(rown, meaning) |>
-    dplyr::group_by(rown) |>
-    dplyr::summarize({{multi_column}} := paste(meaning, collapse=", ")) |>
-    dplyr::select(-rown)
-
-}
 
 
 
-#' Title
+
+
+#' Decodes Multi Category variables
 #'
 #' @param cohort
 #' @param coding
 #'
-#' @return
+#' @return Labeled data frame where list columns are decoded
 #' @export
 #'
 #' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
 decode_multi <- function(cohort, coding){
   coding_table <- build_coding_table(coding)
 
@@ -404,3 +351,17 @@ build_coding_table <- function(coding){
     dplyr::mutate(is_multi_sparse=dplyr::coalesce(is_multi_select, is_sparse_coding))
 }
 
+#' Main Function to Decode Fields from Codings
+#'
+#' @param df
+#' @param coding
+#'
+#' @return
+#' @export
+#'
+#' @examples
+decode_df <- function(df, coding){
+  df |>
+    decode_single(coding) |>
+    decode_multi(coding)
+}
