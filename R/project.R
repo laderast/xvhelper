@@ -1,6 +1,6 @@
 get_field_list <- function(dataset_id) {
   tmp <- tempdir()
-  cmd <- glue::glue("dx extract_data --ddd {dataset_id} ")
+  cmd <- glue::glue("dx extract_data --ddd {dataset_id} -o {tmp}/data_files")
   system(cmd)
   dict <- read.csv(tmp, pattern=(".data"))
   #coding <-
@@ -8,14 +8,26 @@ get_field_list <- function(dataset_id) {
 
 }
 
-#' Title
+build_data_dictionary <- function(dataset_id) {
+
+}
+
+#' Given a data dictionary, displays a searachable table in a quarto document or Jupyter Notebook
 #'
 #' @param dict
 #'
-#' @return
+#' @return none - a reactable table will be created in the document, with a searchable window.
 #' @export
 #'
 #' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
+#'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'
+#' search_field_list(cdata)
+#'
 search_field_list <- function(dict) {
   dict |>
     dplyr::select(title, entity, name, coding_name, units) |>
@@ -198,6 +210,16 @@ decode_categories <- function(df, coded_col_df, drop_sparse=TRUE){
 #' @export
 #'
 #' @examples
+#'
+#' #' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
+#'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'
+#' cohort |>
+#'   decode_column_names(cdata)
 decode_column_names <- function(cohort, coded_col_df) {
 
   coded_col_df <- coded_col_df |>
@@ -229,6 +251,12 @@ decode_column_names <- function(cohort, coded_col_df) {
 #' @export
 #'
 #' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
+#'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#' cdata
 merge_coding_data_dict <- function(coding_dict, data_dict) {
 
   coded_col_df <-
@@ -252,6 +280,14 @@ merge_coding_data_dict <- function(coding_dict, data_dict) {
 #' @export
 #'
 #' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
+#'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'
+#' cohort |>
+#'   decode_single(cdata)
 decode_single <- function(cohort, coding){
   coding_table <- build_coding_table(coding)
 
@@ -284,9 +320,7 @@ decode_single <- function(cohort, coding){
 
   sparsed <- cohort[, sparse_cols]
 
-
   cohort[, sparse_cols] <-  purrr::map2(sparsed, originals, ~(dplyr::coalesce(as.character(.x), as.character(.y))))
-
 
   cohort
 }
@@ -306,6 +340,10 @@ decode_single <- function(cohort, coding){
 #' data(cohort)
 #' data(data_dict)
 #'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'
+#' cohort |>
+#'   decode_multi(cdata)
 #'
 decode_multi <- function(cohort, coding){
   coding_table <- build_coding_table(coding)

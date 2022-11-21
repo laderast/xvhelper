@@ -15,3 +15,15 @@ decode_column_names(cohort, coded_col_df)
 \description{
 Returns cleaned field titles for a cohort dataset
 }
+\examples{
+
+#' @examples
+data(coding_dict)
+data(cohort)
+data(data_dict)
+
+cdata <- merge_coding_data_dict(coding_dict, data_dict)
+
+cohort |>
+  decode_column_names(cdata)
+}

@@ -21,3 +21,13 @@ data.frame with single coded columns decoded
 \description{
 Decodes variables with single coded entries
 }
+\examples{
+data(coding_dict)
+data(cohort)
+data(data_dict)
+
+cdata <- merge_coding_data_dict(coding_dict, data_dict)
+
+cohort |>
+  decode_single(cdata)
+}

@@ -15,3 +15,13 @@ search_field_list(dict)
 \description{
 Title
 }
+\examples{
+data(coding_dict)
+data(cohort)
+data(data_dict)
+
+cdata <- merge_coding_data_dict(coding_dict, data_dict)
+
+search_field_list(cdata)
+
+}
