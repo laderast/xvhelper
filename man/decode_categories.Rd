@@ -2,16 +2,27 @@
 % Please edit documentation in R/project.R
 \name{decode_categories}
 \alias{decode_categories}
-\title{Title}
+\title{Main Function to Decode Fields from Codings}
 \usage{
-decode_categories(df, coded_col_df, drop_sparse = TRUE)
+decode_categories(df, coding)
 }
 \arguments{
-\item{drop_sparse}{}
+\item{coding}{}
 }
 \value{
 
 }
 \description{
-Title
+Main Function to Decode Fields from Codings
+}
+\examples{
+data(coding_dict)
+data(cohort)
+data(data_dict)
+
+cdata <- merge_coding_data_dict(coding_dict, data_dict)
+
+cohort |>
+  decode_df(cdata)
+
 }

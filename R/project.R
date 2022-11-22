@@ -1,14 +1,10 @@
 get_field_list <- function(dataset_id) {
   tmp <- tempdir()
-  cmd <- glue::glue("dx extract_data --ddd {dataset_id} -o {tmp}/data_files")
+  cmd <- glue::glue("dx extract_data --ddd {dataset_id} ")
   system(cmd)
-  dict <- readr::read_csv(tmp, pattern=".data_dictionary.csv")
-  coding <-readr::read_csv(tmp, pattern=".codings.csv")
+  dict <- read.csv(tmp, pattern=(".data"))
+  #coding <-
   return(dict)
-
-}
-
-build_data_dictionary <- function(dataset_id) {
 
 }
 
@@ -33,7 +29,6 @@ search_field_list <- function(dict) {
     dplyr::select(title, entity, name, coding_name, units) |>
     reactable::reactable()
 }
-
 
 
 #' Returns cleaned field titles for a cohort dataset
@@ -241,7 +236,7 @@ build_coding_table <- function(coding){
 #' cohort |>
 #'   decode_df(cdata)
 #'
-decode_df <- function(df, coding){
+decode_categories <- function(df, coding){
   df |>
     decode_single(coding) |>
     decode_multi(coding)

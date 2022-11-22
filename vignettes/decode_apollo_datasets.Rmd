@@ -1,0 +1,77 @@
+---
+title: "Decoding Apollo Datasets with dxhelper"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{decode_apollo_datasets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(dxhelper)
+data("coding_dict")
+data("cohort")
+data("data_dict")
+```
+
+# Decoding Integer Categories of Apollo Datasets
+
+Categorical data is returned by `dx extract_dataset` as the integer representation. To see the actual values, they must be decoded from the `codings.csv` that is generated from `dx extract_dataset`. 
+
+Data fields that have multiple categories must also be parsed and decoded. If the data is a sparse field, it is a combined categorical/numerical field.
+
+## Build coding dictionary
+
+We'll first build a coding dictionary by combining `coding_dict` and `data_dict`:
+
+```{r}
+merged_code <- merge_coding_data_dict(coding_dict, data_dict)
+
+head(merged_code)
+```
+
+## Show Raw Cohort File
+
+Here's a cohort that was returned by `dx extract_dataset`. Note that there are multiple columns encoded as categories. We need to decode these values.
+
+```{r}
+knitr::kable(head(cohort[,c(1:5,14)]))
+```
+
+
+## Decode Columns
+
+We can decode the integer values into the actual values using `decode_categories` and our `merged_code` object:
+
+```{r}
+decoded_cohort <- cohort |>
+  decode_categories(merged_code)
+
+knitr::kable(head(decoded_cohort[,c(1:5,14)]))
+```
+
+## Decode Column Names
+
+Optionally, you can also decode the column names in the table to be R-friendly column names with the actual field titles:
+
+```{r}
+final_cohort <- decoded_cohort |>
+  decode_column_names(merged_code)
+
+knitr::kable(head(final_cohort[,c(1:5,14)]))
+```
+
+## Multi-valued columns
+
+Multivalued columns are returned as a comma delimited string:
+
+```{r}
+knitr::kable(final_cohort[1:10,"diagnoses_main_icd10"])
+```

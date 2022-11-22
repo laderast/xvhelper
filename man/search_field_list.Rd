@@ -2,7 +2,7 @@
 % Please edit documentation in R/project.R
 \name{search_field_list}
 \alias{search_field_list}
-\title{Title}
+\title{Given a data dictionary, displays a searachable table in a quarto document or Jupyter Notebook}
 \usage{
 search_field_list(dict)
 }
@@ -10,10 +10,10 @@ search_field_list(dict)
 \item{dict}{}
 }
 \value{
-
+none - a reactable table will be created in the document, with a searchable window.
 }
 \description{
-Title
+Given a data dictionary, displays a searachable table in a quarto document or Jupyter Notebook
 }
 \examples{
 data(coding_dict)
