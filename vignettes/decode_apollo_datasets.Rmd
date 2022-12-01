@@ -46,13 +46,14 @@ knitr::kable(head(cohort[,c(1:5,14)]))
 ```
 
 
+
 ## Decode Columns
 
 We can decode the integer values into the actual values using `decode_categories` and our `merged_code` object:
 
 ```{r}
 decoded_cohort <- cohort |>
-  decode_categories(merged_code)
+  decode_df(merged_code)
 
 knitr::kable(head(decoded_cohort[,c(1:5,14)]))
 ```
