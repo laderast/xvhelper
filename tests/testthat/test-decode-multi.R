@@ -5,9 +5,23 @@ test_that("decode multi-values", {
   coded_col_df <- merge_coding_data_dict(coding_dict, data_dict)
   test_frame <- cohort |> dplyr::select(participant.p41202)
 
-  out <- decode_multi(test_frame, coded_col_df)
+  out <- test_frame |>
+    decode_multi(coded_col_df)
+
+
 
   expect_true(is.data.frame(out))
   expect_equal(colnames(test_frame), colnames(out))
 })
 
+test_that("decode multi from database", {
+
+  load("data_dict.rda")
+  load("coding_dict.rda")
+  load("mydf2.rda")
+
+  coded_col_df <- merge_coding_data_dict(coding_dict, data_dict)
+  out <- mydf2 |> dplyr::select(participant.p41202) |> decode_multi(coded_col_df)
+
+  expect_true(is.data.frame(out))
+          })

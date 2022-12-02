@@ -21,7 +21,7 @@ data("cohort")
 data("data_dict")
 ```
 
-# Decoding Integer Categories of Apollo Datasets
+## Decoding Integer Categories of Apollo Datasets
 
 Categorical data is returned by `dx extract_dataset` as the integer representation. To see the actual values, they must be decoded from the `codings.csv` that is generated from `dx extract_dataset`. 
 

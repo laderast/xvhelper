@@ -183,6 +183,18 @@ decode_single <- function(cohort, coding){
 decode_multi <- function(cohort, coding){
   coding_table <- build_coding_table(coding)
 
+  col_class <- lapply(cohort, class)
+  list_cols <- names(col_class[col_class == "list"])
+
+  list_columns <- cohort |>
+    dplyr::select(any_of(list_cols)) |>
+    dplyr::rowwise() |>
+    dplyr::mutate(dplyr::across(any_of(list_cols), paste, collapse=","))
+
+  list_columns <- list_columns[,list_cols]
+  cohort[,list_cols] <- list_columns
+
+
   multi_columns <- coding_table |>
     dplyr::filter(is_multi_select == "yes") |>
     dplyr::filter(ent_field %in% colnames(cohort)) |>
@@ -209,8 +221,6 @@ decode_multi <- function(cohort, coding){
   multi_cols <- multi_cols[, multi_columns]
 
   cohort[,multi_columns] <- multi_cols
-
-  #cohort[,multi_columns] <- purrr::map_df(multi_cols, ~(decode_multi_column(.x, coding)))
 
   cohort
 }
