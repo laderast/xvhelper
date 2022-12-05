@@ -12,7 +12,7 @@ RoxygenNote: 7.1.2
 URL: https://github.com/laderast/dxhelper
 BugReports: https://github.com/laderast/dxhelper/issues
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1)
 LazyData: true
 Suggests: 
     knitr,
