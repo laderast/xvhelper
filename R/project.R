@@ -2,6 +2,7 @@ get_field_list <- function(dataset_id) {
   tmp <- tempdir()
   cmd <- glue::glue("dx extract_data --ddd {dataset_id} -o {tmp}/data_files")
   system(cmd)
+
   dict <- readr::read_csv(tmp, pattern=".data_dictionary.csv")
   coding <-readr::read_csv(tmp, pattern=".codings.csv")
   return(dict)
@@ -187,9 +188,9 @@ decode_multi <- function(cohort, coding){
   list_cols <- names(col_class[col_class == "list"])
 
   list_columns <- cohort |>
-    dplyr::select(any_of(list_cols)) |>
+    dplyr::select(dplyr::any_of(list_cols)) |>
     dplyr::rowwise() |>
-    dplyr::mutate(dplyr::across(any_of(list_cols), paste, collapse=","))
+    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), paste, collapse=","))
 
   list_columns <- list_columns[,list_cols]
   cohort[,list_cols] <- list_columns
@@ -201,7 +202,7 @@ decode_multi <- function(cohort, coding){
     dplyr::pull(ent_field)
 
   multi_cols <- cohort |>
-    dplyr::select(any_of(multi_columns))
+    dplyr::select(dplyr::any_of(multi_columns))
 
   multi_cols <- multi_cols |>
     #dplyr::select({{multi_column}}) |>
