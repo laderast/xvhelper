@@ -66,7 +66,8 @@ decode_column_names <- function(cohort, coded_col_df) {
   names_to_replace <- tibble::tibble(orig_names =colnames(cohort))
   replacements <- names_to_replace |>
     dplyr::left_join(y=coded_col_df, by=c("orig_names"="ent_field")) |>
-    dplyr::pull(title) |>
+    dplyr::mutate(new_title = dplyr::coalesce(new_title = title, orig_names)) |>
+    dplyr::pull(new_title) |>
     janitor::make_clean_names()
 
   colnames(cohort) <- replacements
