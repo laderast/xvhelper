@@ -16,10 +16,10 @@ test_that("decode multi from database", {
 
   load("data_dict.rda")
   load("coding_dict.rda")
-  load("mydf2.rda")
+  load("mydf.rda")
 
   coded_col_df <- merge_coding_data_dict(coding_dict, data_dict)
-  out <- df |> dplyr::select(participant.p41202) |> decode_multi(coded_col_df)
+  out <- mydf |> dplyr::select(participant.p41202) |> decode_multi(coded_col_df)
 
   expect_true(is.data.frame(out))
 })

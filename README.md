@@ -101,6 +101,67 @@ knitr::kable(head(cohort[,c(1:5,14)]))
 |                 67 |                     NA |                     NA |                     NA |                     NA |               0 |
 |                 61 |                     NA |                     NA |                     NA |                     NA |               0 |
 
+## Returned tables from SparkSQL
+
+If you use `dbGetQuery()` to fetch your table from Spark, multi-value
+columns will be returned as list-columns. `decode_df` will return a
+comma-delimited string for these columns as well.
+
+``` r
+head(mydf)
+#>   participant.eid participant.p21022 participant.p1508_i0 participant.p1508_i1
+#> 1  sample_100_116                 43                    3                   NA
+#> 2  sample_100_142                 60                    3                   NA
+#> 3  sample_100_285                 53                    3                   NA
+#> 4  sample_100_290                 62                    2                   NA
+#> 5  sample_100_304                 67                    3                   NA
+#> 6  sample_100_328                 61                    1                   NA
+#>   participant.p1508_i2
+#> 1                   NA
+#> 2                   NA
+#> 3                   NA
+#> 4                   NA
+#> 5                   NA
+#> 6                   NA
+#>                                                                                                                               participant.p41202
+#> 1 R073, Z099, I839, Z305, R07, Block R00-R09, Chapter XVIII, Z09, Block Z00-Z13, Chapter XXI, I83, Block I80-I89, Chapter IX, Z30, Block Z30-Z39
+#> 2                                                                   J320, R103, J32, Block J30-J39, Chapter X, R10, Block R10-R19, Chapter XVIII
+#> 3                                                                                                                                             NA
+#> 4                                                                                                        R073, R07, Block R00-R09, Chapter XVIII
+#> 5                                                                                                           I871, I87, Block I80-I89, Chapter IX
+#> 6                                                                                                           K011, K01, Block K00-K14, Chapter XI
+#>   participant.p31 participant.p41226 participant.p3159_i0 participant.p3159_i1
+#> 1               0                 NA                   NA                   NA
+#> 2               0                 NA                   NA                   NA
+#> 3               0                 NA                   NA                   NA
+#> 4               0                 NA                   NA                   NA
+#> 5               0                 NA                   NA                   NA
+#> 6               0                 NA                   NA                   NA
+#>   participant.p3159_i2
+#> 1                    0
+#> 2                   NA
+#> 3                   NA
+#> 4                   NA
+#> 5                   NA
+#> 6                   NA
+```
+
+``` r
+from_db <- mydf |> 
+  decode_df(merged_code)
+
+knitr::kable(head(from_db))
+```
+
+| participant.eid | participant.p21022 | participant.p1508_i0                         | participant.p1508_i1 | participant.p1508_i2 | participant.p41202                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | participant.p31 | participant.p41226 | participant.p3159_i0 | participant.p3159_i1 | participant.p3159_i2 |
+|:----------------|-------------------:|:---------------------------------------------|:---------------------|:---------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------|:-------------------|:---------------------|:---------------------|:---------------------|
+| sample_100_116  |                 43 | Ground coffee (include espresso, filter etc) | NA                   | NA                   | R07.3 Other chest pain, Z09.9 Follow-up examination after unspecified treatment for other conditions, I83.9 Varicose veins of lower extremities without ulcer or inflammation, Z30.5 Surveillance of (intra-uterine) contraceptive device, R07 Pain in throat and chest, R00-R09 Symptoms and signs involving the circulatory and respiratory systems, Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified, Z09 Follow-up examination after treatment for conditions other than malignant neoplasms, Z00-Z13 Persons encountering health services for examination and investigation, Chapter XXI Factors influencing health status and contact with health services, I83 Varicose veins of lower extremities, I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified, Chapter IX Diseases of the circulatory system, Z30 Contraceptive management, Z30-Z39 Persons encountering health services in circumstances related to reproduction | Female          | NA                 | NA                   | NA                   | No                   |
+| sample_100_142  |                 60 | Ground coffee (include espresso, filter etc) | NA                   | NA                   | J32.0 Chronic maxillary sinusitis, R10.3 Pain localised to other parts of lower abdomen, J32 Chronic sinusitis, J30-J39 Other diseases of upper respiratory tract, Chapter X Diseases of the respiratory system, R10 Abdominal and pelvic pain, R10-R19 Symptoms and signs involving the digestive system and abdomen, Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Female          | NA                 | NA                   | NA                   | NA                   |
+| sample_100_285  |                 53 | Ground coffee (include espresso, filter etc) | NA                   | NA                   | NA                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Female          | NA                 | NA                   | NA                   | NA                   |
+| sample_100_290  |                 62 | Instant coffee                               | NA                   | NA                   | R07.3 Other chest pain, R07 Pain in throat and chest, R00-R09 Symptoms and signs involving the circulatory and respiratory systems, Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Female          | NA                 | NA                   | NA                   | NA                   |
+| sample_100_304  |                 67 | Ground coffee (include espresso, filter etc) | NA                   | NA                   | I87.1 Compression of vein, I87 Other disorders of veins, I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified, Chapter IX Diseases of the circulatory system                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Female          | NA                 | NA                   | NA                   | NA                   |
+| sample_100_328  |                 61 | Decaffeinated coffee (any type)              | NA                   | NA                   | K01.1 Impacted teeth, K01 Embedded and impacted teeth, K00-K14 Diseases of oral cavity, salivary glands and jaws, Chapter XI Diseases of the digestive system                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Female          | NA                 | NA                   | NA                   | NA                   |
+
 ## Decode Columns
 
 We can decode the integer values into the actual values using

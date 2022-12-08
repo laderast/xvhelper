@@ -84,6 +84,20 @@ knitr::kable(head(cohort[,c(1:5,14)]))
 ```
 
 
+## Returned tables from SparkSQL
+
+If you use `dbGetQuery()` to fetch your table from Spark, multi-value columns will be returned as list-columns. `decode_df` will return a comma-delimited string for these columns as well.
+
+```{r}
+head(mydf)
+```
+
+```{r}
+from_db <- mydf |> 
+  decode_df(merged_code)
+
+knitr::kable(head(from_db))
+```
 
 ## Decode Columns
 
