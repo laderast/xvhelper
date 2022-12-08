@@ -6,7 +6,7 @@ build_data_dictionary <- function(dataset_id) {
   dict <- readr::read_csv(tmp, pattern=".data_dictionary.csv")
   coding <-readr::read_csv(tmp, pattern=".codings.csv")
 
-  coding_df <- dxhelper::merge_coding_data_dict(coding, dick)
+  coding_df <- dxhelper::merge_coding_data_dict(coding, dict)
 
   return(coding_df)
 
@@ -173,6 +173,60 @@ decode_single <- function(cohort, coding){
 }
 
 
+decode_single_db <- function(cohort, coding){
+  coding_table <- build_coding_table(coding)  |>
+    dplyr::filter(ent_field %in% colnames(cohort))
+
+  coding <- coding |> dplyr::filter(ent_field %in% colnames(cohort)) |>
+    dplyr::select(-name)
+
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir="tablesduckdb", read_only=FALSE)
+  duckdb::duckdb_register(con, "coding", coding)
+  coding_db <- dplyr::tbl(con, "coding")
+
+
+  not_multi <- coding_table |>
+    dplyr::filter(ent_field %in% colnames(cohort)) |>
+    dplyr::filter(is.na(is_multi_sparse)) |>
+    dplyr::filter(!is.na(coding_name)) |>
+    dplyr::pull(ent_field)
+
+  sparse_columns <- cohort |> dplyr::select(-any_of(not_multi))
+
+  out <- cohort |>
+    dplyr::select(any_of(not_multi)) |>
+
+    dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) |>
+    dplyr::mutate(rown=dplyr::row_number()) |>
+    tidyr::pivot_longer(-rown, names_to = "name", values_to = "code")
+
+  duckdb::duckdb_register(con, "output", out)
+
+  decoded <- dplyr::tbl(con, "output") |>
+    dplyr::left_join(y=coding_db, by = c("name"="ent_field", "code"="code")) |>
+    dplyr::select(rown, name, meaning) |> tibble::as_tibble()
+
+  out <- decoded |>
+    tidyr::pivot_wider(id_cols = rown, names_from = "name", values_from = "meaning") |>
+    dplyr::select(-rown)
+
+  out <- out[,not_multi]
+
+  DBI::dbDisconnect(con, shutdown=TRUE)
+
+  sparse_cols <- coding_table |>
+    dplyr::filter(is_sparse_coding == "yes" & is.na(coding_name)) |> dplyr::pull(ent_field)
+
+  originals <- cohort[, sparse_cols]
+
+  cohort[,not_multi] <- out
+
+  sparsed <- cohort[, sparse_cols]
+
+  cohort[, sparse_cols] <-  purrr::map2(sparsed, originals, ~(dplyr::coalesce(as.character(.x), as.character(.y))))
+
+  cohort
+}
 
 #' Decodes Multi Category variables
 #'
@@ -240,6 +294,94 @@ decode_multi <- function(cohort, coding){
   cohort
 }
 
+
+#' Decodes Multi Category variables
+#'
+#' @param cohort
+#' @param coding
+#'
+#' @return Labeled data frame where multi category columns are decoded
+#' @export
+#'
+#' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
+#'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'
+#' cohort |>
+#'   decode_multi(cdata)
+#'
+decode_multi_db <- function(cohort, coding){
+  coding_table <- build_coding_table(coding) |>
+    dplyr::filter(ent_field %in% colnames(cohort))
+
+  coding <- coding |> dplyr::filter(ent_field %in% colnames(cohort)) |>
+    dplyr::select(-name)
+
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir="tablesduckdb", read_only=FALSE)
+  duckdb::duckdb_register(con, "coding", coding)
+  coding_db <- dplyr::tbl(con, "coding")
+
+  col_class <- lapply(cohort, class)
+  list_cols <- names(col_class[col_class == "list"])
+
+  #if column is a list-column, paste values together as comma delimited string
+  list_columns <- cohort |>
+    dplyr::select(dplyr::any_of(list_cols)) |>
+    dplyr::rowwise() |>
+    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), paste, collapse=","))
+
+  list_columns <- list_columns[,list_cols]
+  cohort[,list_cols] <- list_columns
+
+  multi_columns <- coding_table |>
+    dplyr::filter(is_multi_select == "yes") |>
+    dplyr::filter(ent_field %in% colnames(cohort)) |>
+    dplyr::pull(ent_field)
+
+  multi_cols <- cohort |>
+    dplyr::select(dplyr::any_of(multi_columns))
+
+  multi_cols <- multi_cols |>
+    #dplyr::select({{multi_column}}) |>
+    dplyr::mutate(rown=dplyr::row_number()) |>
+    tidyr::pivot_longer(-rown, names_to="col", values_to="code") |>
+    dplyr::mutate(code :=
+                    stringr::str_replace_all(code, '\\[|\\]|\\"', "")) |>
+    #separate commaa delimited string in multicolumn to multiple rows
+    tidyr::separate_rows(code, sep = ",")
+
+  duckdb::duckdb_register(con, "multicol", multi_cols)
+  multi_cols_db <- dplyr::tbl(con, "multicol")
+
+  multi_cols <-
+  multi_cols_db |>
+    #join to coding file
+    dplyr::left_join(y=coding_db, by=c("code"="code", "col"="ent_field")) |>
+    dplyr::select(rown, col, meaning) |>
+    tibble::as_tibble()
+
+  multi_cols <-
+    multi_cols |>
+    dplyr::group_by(rown, col) |>
+    dplyr::summarize(code := paste(meaning, collapse="|")) |>
+    tidyr::pivot_wider(id_cols = "rown", names_from = "col", values_from = "code") |>
+    dplyr::ungroup() |>
+    dplyr::select(-rown)
+
+  multi_cols <- multi_cols[, multi_columns]
+
+  cohort[,multi_columns] <- multi_cols
+
+  DBI::dbDisconnect(con, shutdown=TRUE)
+
+  cohort
+}
+
+
+
 build_coding_table <- function(coding){
 
   coding |>
@@ -267,6 +409,31 @@ build_coding_table <- function(coding){
 #'   decode_df(cdata)
 #'
 decode_df <- function(df, coding){
+  df |>
+    decode_single(coding) |>
+    decode_multi(coding)
+}
+
+
+#' Main Function to Decode Fields from Codings using Duck DB
+#'
+#' @param df
+#' @param coding
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
+#'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'
+#' cohort |>
+#'   decode_df_db(cdata)
+#'
+decode_df_db <- function(df, coding){
   df |>
     decode_single(coding) |>
     decode_multi(coding)
