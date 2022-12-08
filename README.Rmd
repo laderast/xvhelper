@@ -84,21 +84,6 @@ knitr::kable(head(cohort[,c(1:5,14)]))
 ```
 
 
-## Returned tables from SparkSQL
-
-If you use `dbGetQuery()` to fetch your table from Spark, multi-value columns will be returned as list-columns. `decode_df` will return a comma-delimited string for these columns as well.
-
-```{r}
-head(mydf)
-```
-
-```{r}
-from_db <- mydf |> 
-  decode_df(merged_code)
-
-knitr::kable(head(from_db))
-```
-
 ## Decode Columns
 
 We can decode the integer values into the actual values using `decode_categories` and our `merged_code` object:
@@ -127,4 +112,19 @@ Multivalued columns are returned as a comma delimited string:
 
 ```{r}
 knitr::kable(final_cohort[1:10,"diagnoses_main_icd10"])
+```
+
+## Returned tables from SparkSQL
+
+If you use `dbGetQuery()` to fetch your table from Spark, multi-value columns will be returned as list-columns. `decode_df` will return a comma-delimited string for these columns as well.
+
+```{r}
+tibble::tibble(mydf)
+```
+
+```{r}
+from_db <- mydf |> 
+  decode_df(merged_code)
+
+knitr::kable(head(from_db))
 ```
