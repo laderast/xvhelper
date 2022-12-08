@@ -4,7 +4,7 @@
 \alias{decode_column_names}
 \title{Returns cleaned field titles for a cohort dataset}
 \usage{
-decode_column_names(cohort, coded_col_df)
+decode_column_names(cohort, coded_col_df, r_clean_names = TRUE)
 }
 \arguments{
 \item{coded_col_df}{}

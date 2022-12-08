@@ -21,5 +21,5 @@ data(cohort)
 data(data_dict)
 
 cdata <- merge_coding_data_dict(coding_dict, data_dict)
-cdata
+headh(cdata)
 }

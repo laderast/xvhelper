@@ -13,7 +13,8 @@ explore_field_list(dict)
 none - a reactable table will be created in the document, with a searchable window.
 }
 \description{
-Given a data dictionary, displays a searachable table in a quarto document or Jupyter Notebook
+This function leverages reactable to give a searchable table of fields. It's most useful
+in a Jupyter Notebook or RMarkdown/Quarto Document
 }
 \examples{
 data(coding_dict)

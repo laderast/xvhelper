@@ -1,19 +1,23 @@
-get_field_list <- function(dataset_id) {
+build_data_dictionary <- function(dataset_id) {
   tmp <- tempdir()
   cmd <- glue::glue("dx extract_data --ddd {dataset_id} -o {tmp}/data_files")
   system(cmd)
 
   dict <- readr::read_csv(tmp, pattern=".data_dictionary.csv")
   coding <-readr::read_csv(tmp, pattern=".codings.csv")
-  return(dict)
+
+  coding_df <- dxhelper::merge_coding_data_dict(coding, dick)
+
+  return(coding_df)
 
 }
 
-build_data_dictionary <- function(dataset_id) {
 
-}
 
 #' Given a data dictionary, displays a searachable table in a quarto document or Jupyter Notebook
+#'
+#' This function leverages reactable to give a searchable table of fields. It's most useful
+#' in a Jupyter Notebook or RMarkdown/Quarto Document
 #'
 #' @param dict
 #'
@@ -32,7 +36,7 @@ build_data_dictionary <- function(dataset_id) {
 explore_field_list <- function(dict) {
   dict |>
     dplyr::select(title, entity, name, coding_name, units) |>
-    reactable::reactable()
+    reactable::reactable(searchable = TRUE)
 }
 
 
@@ -56,7 +60,7 @@ explore_field_list <- function(dict) {
 #'
 #' cohort |>
 #'   decode_column_names(cdata)
-decode_column_names <- function(cohort, coded_col_df) {
+decode_column_names <- function(cohort, coded_col_df, r_clean_names=TRUE) {
 
   coded_col_df <- coded_col_df |>
     dplyr::select(ent_field, title) |>
@@ -67,8 +71,13 @@ decode_column_names <- function(cohort, coded_col_df) {
   replacements <- names_to_replace |>
     dplyr::left_join(y=coded_col_df, by=c("orig_names"="ent_field")) |>
     dplyr::mutate(new_title = dplyr::coalesce(new_title = title, orig_names)) |>
-    dplyr::pull(new_title) |>
-    janitor::make_clean_names()
+    dplyr::pull(new_title)
+
+  if(r_clean_names){
+    replacements <- replacements |>
+      janitor::make_clean_names()
+  }
+
 
   colnames(cohort) <- replacements
 
@@ -93,7 +102,7 @@ decode_column_names <- function(cohort, coded_col_df) {
 #' data(data_dict)
 #'
 #' cdata <- merge_coding_data_dict(coding_dict, data_dict)
-#' cdata
+#' headh(cdata)
 merge_coding_data_dict <- function(coding_dict, data_dict) {
 
   coded_col_df <-
@@ -126,7 +135,8 @@ merge_coding_data_dict <- function(coding_dict, data_dict) {
 #' cohort |>
 #'   decode_single(cdata)
 decode_single <- function(cohort, coding){
-  coding_table <- build_coding_table(coding)
+  coding_table <- build_coding_table(coding)  |>
+    dplyr::filter(ent_field %in% colnames(cohort))
 
   not_multi <- coding_table |>
     dplyr::filter(ent_field %in% colnames(cohort)) |>
@@ -183,11 +193,13 @@ decode_single <- function(cohort, coding){
 #'   decode_multi(cdata)
 #'
 decode_multi <- function(cohort, coding){
-  coding_table <- build_coding_table(coding)
+  coding_table <- build_coding_table(coding) |>
+    dplyr::filter(ent_field %in% colnames(cohort))
 
   col_class <- lapply(cohort, class)
   list_cols <- names(col_class[col_class == "list"])
 
+  #if column is a list-column, paste values together as comma delimited string
   list_columns <- cohort |>
     dplyr::select(dplyr::any_of(list_cols)) |>
     dplyr::rowwise() |>
@@ -210,11 +222,13 @@ decode_multi <- function(cohort, coding){
     tidyr::pivot_longer(-rown, names_to="col", values_to="code") |>
     dplyr::mutate(code :=
                     stringr::str_replace_all(code, '\\[|\\]|\\"', "")) |>
+    #separate commaa delimited string in multicolumn to multiple rows
     tidyr::separate_rows(code, sep = ",") |>
+    #join to coding file
     dplyr::left_join(y=coding, by=c("code"="code", "col"="ent_field")) |>
     dplyr::select(rown, col, meaning) |>
     dplyr::group_by(rown, col) |>
-    dplyr::summarize(code := paste(meaning, collapse=", ")) |>
+    dplyr::summarize(code := paste(meaning, collapse="|")) |>
     tidyr::pivot_wider(id_cols = "rown", names_from = "col", values_from = "code") |>
     dplyr::ungroup() |>
     dplyr::select(-rown)

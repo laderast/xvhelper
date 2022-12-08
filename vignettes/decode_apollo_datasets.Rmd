@@ -91,9 +91,19 @@ final_cohort <- decoded_cohort |>
 knitr::kable(head(final_cohort[,c(1:5,14)]))
 ```
 
+If you want the original field names with no modifications, you can set the argument `r_clean_names` to `FALSE`:
+
+```{r}
+final_cohort2 <- decoded_cohort |>
+  decode_column_names(merged_code, r_clean_names=FALSE)
+
+knitr::kable(head(final_cohort2[,c(1:5,14)]))
+```
+
+
 ## Multi-valued columns
 
-Multivalued columns are returned as a comma delimited string:
+Multivalued columns are returned as a pipe (`|`) delimited string (this is to avoid issues with commas within categorical values):
 
 ```{r}
 knitr::kable(final_cohort[1:10,"diagnoses_main_icd10"])
@@ -102,7 +112,7 @@ knitr::kable(final_cohort[1:10,"diagnoses_main_icd10"])
 
 ## Returned tables from SparkSQL
 
-If you use `dbGetQuery()` to fetch your table from Spark, multi-value columns will be returned as list-columns. `decode_df` will return a comma-delimited string for these columns as well.
+If you use `dbGetQuery()` to fetch your table from Spark, multi-value columns will be returned as list-columns. `decode_df` will return a pipe-delimited string for these columns as well.
 
 ```{r}
 head(mydf)
