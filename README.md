@@ -28,6 +28,50 @@ remotes::install_github("laderast/dxr")
 All examples are shown with synthetic data. These are not actual
 patients from UKB RAP.
 
+## Read in CSV file or SQL generated `data.frame`
+
+`{dxhelper}` works with both the CSV files that is generated from
+`dx extrqct_dataset` or the `datq.frame` that is generated from running
+the Spark SQL query.
+
+If you need to load the CSV file in, `readr::read_csv` is recommended:
+
+``` r
+cohort <- readr::read_csv("my_dataset.csv", show_col_types=FALSE)
+```
+
+## Build coding dictionary
+
+We’ll need two `data.frame`s: a `coding_dict` and a `data_dict`. These
+are `data.frame`s from the `.coding.csv` and `data_dictionary.csv` files
+that are generated with the `-ddd` (dump dataset dictionary) option of
+`dx extract_dataset`. We read them in using `readr::read_csv`.
+
+``` r
+coding_dict <- readr::read_csv("my_dataset.coding.csv", show_col_types=FALSE)
+data_dict <- readr::read_csv("my_dataset.data_dictionary.csv" , show_col_types=FALSE)
+```
+
+Then we’ll build a coding dictionary by combining `coding_dict` and
+`data_dict`.
+
+``` r
+merged_code <- merge_coding_data_dict(coding_dict, data_dict)
+
+head(merged_code)
+#> # A tibble: 6 × 9
+#>   title               ent_f…¹ entity name  codin…² code  meaning is_sp…³ is_mu…⁴
+#>   <chr>               <glue>  <chr>  <chr> <chr>   <chr> <chr>   <chr>   <chr>  
+#> 1 Coffee consumed | … partic… parti… p100… data_c… 0     No      <NA>    <NA>   
+#> 2 Coffee consumed | … partic… parti… p100… data_c… 1     Yes     <NA>    <NA>   
+#> 3 Coffee consumed | … partic… parti… p100… data_c… 0     No      <NA>    <NA>   
+#> 4 Coffee consumed | … partic… parti… p100… data_c… 1     Yes     <NA>    <NA>   
+#> 5 Sex of baby         partic… parti… p412… data_c… 9     Not sp… <NA>    yes    
+#> 6 Sex of baby         partic… parti… p412… data_c… 3     Indete… <NA>    yes    
+#> # … with abbreviated variable names ¹​ent_field, ²​coding_name,
+#> #   ³​is_sparse_coding, ⁴​is_multi_select
+```
+
 ## Decoding Integer Categories of Apollo Datasets
 
 Categorical data is returned by `dx extract_dataset` as the integer
