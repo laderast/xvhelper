@@ -23,6 +23,11 @@ install.packages("remotes")
 remotes::install_github("laderast/dxr")
 ```
 
+## Note about example data
+
+All examples are shown with synthetic data. These are not actual
+patients from UKB RAP.
+
 ## Decoding Integer Categories of Apollo Datasets
 
 Categorical data is returned by `dx extract_dataset` as the integer
