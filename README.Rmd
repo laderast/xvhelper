@@ -75,16 +75,6 @@ Categorical data is returned by `dx extract_dataset` as the integer representati
 
 Data fields that have multiple categories must also be parsed and decoded. If the data is a sparse field, it is a combined categorical/numerical field.
 
-## Build coding dictionary
-
-We'll first build a coding dictionary by combining `coding_dict` and `data_dict`:
-
-```{r}
-merged_code <- merge_coding_data_dict(coding_dict, data_dict)
-
-head(merged_code)
-```
-
 ## Show Raw Cohort File
 
 Here's a cohort that was returned by `dx extract_dataset`. Note that there are multiple columns encoded as categories. We need to decode these values.

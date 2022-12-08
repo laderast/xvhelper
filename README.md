@@ -82,28 +82,6 @@ Data fields that have multiple categories must also be parsed and
 decoded. If the data is a sparse field, it is a combined
 categorical/numerical field.
 
-## Build coding dictionary
-
-We’ll first build a coding dictionary by combining `coding_dict` and
-`data_dict`:
-
-``` r
-merged_code <- merge_coding_data_dict(coding_dict, data_dict)
-
-head(merged_code)
-#> # A tibble: 6 × 9
-#>   title               ent_f…¹ entity name  codin…² code  meaning is_sp…³ is_mu…⁴
-#>   <chr>               <glue>  <chr>  <chr> <chr>   <chr> <chr>   <chr>   <chr>  
-#> 1 Coffee consumed | … partic… parti… p100… data_c… 0     No      <NA>    <NA>   
-#> 2 Coffee consumed | … partic… parti… p100… data_c… 1     Yes     <NA>    <NA>   
-#> 3 Coffee consumed | … partic… parti… p100… data_c… 0     No      <NA>    <NA>   
-#> 4 Coffee consumed | … partic… parti… p100… data_c… 1     Yes     <NA>    <NA>   
-#> 5 Sex of baby         partic… parti… p412… data_c… 9     Not sp… <NA>    yes    
-#> 6 Sex of baby         partic… parti… p412… data_c… 3     Indete… <NA>    yes    
-#> # … with abbreviated variable names ¹​ent_field, ²​coding_name,
-#> #   ³​is_sparse_coding, ⁴​is_multi_select
-```
-
 ## Show Raw Cohort File
 
 Here’s a cohort that was returned by `dx extract_dataset`. Note that
