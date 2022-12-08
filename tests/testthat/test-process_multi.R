@@ -1,4 +1,4 @@
-test_that("decoding columns works",{
+test_that("decoding column names works",{
 
   load("data_dict.rda")
   load("coding_dict.rda")

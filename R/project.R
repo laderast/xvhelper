@@ -196,7 +196,6 @@ decode_multi <- function(cohort, coding){
   list_columns <- list_columns[,list_cols]
   cohort[,list_cols] <- list_columns
 
-
   multi_columns <- coding_table |>
     dplyr::filter(is_multi_select == "yes") |>
     dplyr::filter(ent_field %in% colnames(cohort)) |>
