@@ -12,7 +12,7 @@ test_that("decode multi-values", {
   expect_equal(colnames(test_frame), colnames(out))
 })
 
-test_that("decode multi-values duckdb", {
+test_that("decode multi-values purrr", {
   load("data_dict.rda")
   load("coding_dict.rda")
   load("cohort.rda")
@@ -20,7 +20,7 @@ test_that("decode multi-values duckdb", {
   test_frame <- cohort |> dplyr::select(participant.p41202)
 
   out <- test_frame |>
-    decode_multi_db(coded_col_df)
+    decode_multi_purrr(coded_col_df)
 
   expect_true(is.data.frame(out))
   expect_equal(colnames(test_frame), colnames(out))

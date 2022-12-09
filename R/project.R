@@ -376,7 +376,6 @@ decode_multi_purrr <- function(cohort, coding){
 #' @param coding
 #'
 #' @return Labeled data frame where multi category columns are decoded
-#' @export
 #'
 #' @examples
 #' data(coding_dict)
@@ -496,7 +495,6 @@ decode_df <- function(df, coding){
 #' @param coding
 #'
 #' @return
-#' @export
 #'
 #' @examples
 #' data(coding_dict)

@@ -2,9 +2,8 @@
 
 export(decode_column_names)
 export(decode_df)
-export(decode_df_db)
 export(decode_multi)
-export(decode_multi_db)
+export(decode_multi_purrr)
 export(decode_single)
 export(explore_field_list)
 export(merge_coding_data_dict)
