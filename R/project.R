@@ -313,6 +313,81 @@ decode_multi <- function(cohort, coding){
 #' cohort |>
 #'   decode_multi(cdata)
 #'
+decode_multi_purrr <- function(cohort, coding){
+  coding_table <- build_coding_table(coding) #|>
+    #dplyr::filter(ent_field %in% colnames(cohort))
+
+  col_class <- lapply(cohort, class)
+  list_cols <- names(col_class[col_class == "list"])
+
+  if(length(list_cols) !=0) {
+  #if column is a list-column, paste values together as comma delimited string
+  list_columns <- cohort |>
+    dplyr::select(dplyr::any_of(list_cols)) |>
+    dplyr::rowwise() |>
+    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), paste, collapse=","))
+
+  list_columns <- list_columns[,list_cols]
+  cohort[,list_cols] <- list_columns
+  }
+
+  multi_columns <- coding_table |>
+    dplyr::filter(is_multi_select == "yes" | is_multi_sparse == "yes") |>
+    dplyr::filter(ent_field %in% colnames(cohort)) |>
+    dplyr::pull(ent_field)
+
+  multi_cols <- cohort |>
+    dplyr::select(dplyr::any_of(multi_columns))
+
+  multi_cols <- multi_cols |>
+    #dplyr::select({{multi_column}}) |>
+    dplyr::mutate(rown=dplyr::row_number()) |>
+    tidyr::pivot_longer(-rown, names_to="col", values_to="code") |>
+    dplyr::mutate(code :=
+                    stringr::str_replace_all(code, '\\[|\\]|\\"', "")) |>
+    #separate commaa delimited string in multicolumn to multiple rows
+    tidyr::separate_rows(code, sep = ",")
+
+  #multi_cols <- multi_cols |>
+  #  tidyr::nest(col)
+
+  test <- multi_cols |> dplyr::group_by(col) |> tidyr::nest(data=c(rown, code))
+  test2 <- coding |> dplyr::select(ent_field, coding_name, code, meaning) |> dplyr::group_by(ent_field, coding_name) |> tidyr::nest(data=c(code, meaning))
+  test3 <- dplyr::left_join(test, test2, by=c("col"="ent_field"))
+  test4 <- purrr::map2(test3$data.x, test3$data.y, ~(dplyr::left_join(.x,.y, by=c("code"))))
+  names(test4) <- multi_columns
+  test5 <- purrr::map(test4, ~(.x |>
+                                 dplyr::group_by(rown) |>
+                                 dplyr::summarize(code := paste(meaning, collapse="|")) |>
+                                 dplyr::ungroup() |>
+                                 dplyr::select(-rown)
+                               ))
+  multi_cols <- as.data.frame(test5)
+  colnames(multi_cols) <- multi_columns
+
+  cohort[,multi_columns] <- multi_cols
+
+  cohort
+}
+
+#' Decodes Multi Category variables
+#'
+#' @param cohort
+#' @param coding
+#'
+#' @return Labeled data frame where multi category columns are decoded
+#' @export
+#'
+#' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
+#'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'
+#' cohort |>
+#'   decode_multi(cdata)
+#'
 decode_multi_db <- function(cohort, coding){
   coding_table <- build_coding_table(coding) |>
     dplyr::filter(ent_field %in% colnames(cohort))
@@ -436,5 +511,5 @@ decode_df <- function(df, coding){
 decode_df_db <- function(df, coding){
   df |>
     decode_single(coding) |>
-    decode_multi(coding)
+    decode_multi_purrr(coding)
 }
