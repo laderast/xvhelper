@@ -20,7 +20,7 @@ You can install the development version of dxhelper from
 
 ``` r
 install.packages("remotes")
-remotes::install_github("laderast/dxr")
+remotes::install_github("laderast/dxhelper")
 ```
 
 ## Note about example data
