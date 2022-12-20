@@ -8,4 +8,4 @@
 
 library(testthat)
 
-test_check("dxhelper")
+test_check("xvhelper")

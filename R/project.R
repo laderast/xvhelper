@@ -6,7 +6,7 @@ build_data_dictionary <- function(dataset_id) {
   dict <- readr::read_csv(tmp, pattern=".data_dictionary.csv")
   coding <-readr::read_csv(tmp, pattern=".codings.csv")
 
-  coding_df <- dxhelper::merge_coding_data_dict(coding, dict)
+  coding_df <- xvhelper::merge_coding_data_dict(coding, dict)
 
   return(coding_df)
 

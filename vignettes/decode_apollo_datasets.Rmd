@@ -1,5 +1,5 @@
 ---
-title: "Decoding Apollo Datasets with dxhelper"
+title: "Decoding Apollo Datasets with xvhelper"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{decode_apollo_datasets}
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(dxhelper)
+library(xvhelper)
 data("coding_dict")
 data("cohort")
 data("data_dict")
@@ -32,7 +32,7 @@ Data fields that have multiple categories must also be parsed and decoded. If th
 
 ## Read in CSV file or SQL generated `data.frame`
 
-`{dxhelper}` works with both the CSV files that is generated from `dx extrqct_dataset` or the `datq.frame` that is generated from running the Spark SQL query.
+`{xvhelper}` works with both the CSV files that is generated from `dx extrqct_dataset` or the `datq.frame` that is generated from running the Spark SQL query.
 
 If you need to load the CSV file in, `readr::read_csv` is recommended:
 

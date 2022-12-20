@@ -1,12 +1,16 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# dxhelper
+# xvhelper
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of dxhelper is to provide an tidy interface to decoding raw
+Note: this package was recently named `dxhelper`. It has been renamed to
+`xvhelper` to reflect that it is not software that is released by
+DNAnexus product.
+
+The goal of xvhelper is to provide an tidy interface to decoding raw
 values from exported Apollo datasets, whether they are exported from
 `dx extract_dataset` or through a SparkSQL query.
 
@@ -15,12 +19,12 @@ categorical values from the raw data.
 
 ## Installation
 
-You can install the development version of dxhelper from
+You can install the development version of xvhelper from
 [GitHub](https://github.com/) with:
 
 ``` r
 install.packages("remotes")
-remotes::install_github("laderast/dxhelper")
+remotes::install_github("laderast/xvhelper")
 ```
 
 ## Note about example data
@@ -30,7 +34,7 @@ patients from UKB RAP.
 
 ## Read in CSV file or SQL generated `data.frame`
 
-`{dxhelper}` works with both the CSV files that is generated from
+`{xvhelper}` works with both the CSV files that is generated from
 `dx extrqct_dataset` or the `datq.frame` that is generated from running
 the Spark SQL query.
 
@@ -210,7 +214,6 @@ tibble::tibble(mydf)
 #> #   ¹​participant.eid, ²​participant.p21022, ³​participant.p1508_i0,
 #> #   ⁴​participant.p1508_i1, ⁵​participant.p1508_i2, ⁶​participant.p41202,
 #> #   ⁷​participant.p31, ⁸​participant.p41226, ⁹​participant.p3159_i0
-#> # ℹ Use `print(n = ...)` to see more rows, and `colnames()` to see all variable names
 ```
 
 ``` r
