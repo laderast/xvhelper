@@ -19,10 +19,17 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Config/reticulate:
+  list(
+    packages = list(
+      list(package = "dxpy", pip = TRUE)
+    )
+  )
 Imports: 
     dplyr,
     glue,
     janitor,
     stringr,
-    tibble
+    tibble,
+    reticulate
 VignetteBuilder: knitr

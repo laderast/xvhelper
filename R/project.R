@@ -1,17 +1,3 @@
-build_data_dictionary <- function(dataset_id) {
-  tmp <- tempdir()
-  cmd <- glue::glue("dx extract_data --ddd {dataset_id} -o {tmp}/data_files")
-  system(cmd)
-
-  dict <- readr::read_csv(tmp, pattern=".data_dictionary.csv")
-  coding <-readr::read_csv(tmp, pattern=".codings.csv")
-
-  coding_df <- xvhelper::merge_coding_data_dict(coding, dict)
-
-  return(coding_df)
-
-}
-
 
 
 #' Given a data dictionary, displays a searachable table in a quarto document or Jupyter Notebook
@@ -109,6 +95,7 @@ merge_coding_data_dict <- function(coding_dict, data_dict) {
     data_dict |>
       dplyr::mutate(ent_field=glue::glue("{entity}.{name}")) |>
       dplyr::left_join(y=coding_dict, by="coding_name") |>
+      dplyr::mutate(code = as.character(code)) |>
       dplyr::select(title, ent_field, entity, name, coding_name,
              code, meaning, is_sparse_coding,
              is_multi_select)
@@ -485,7 +472,7 @@ build_coding_table <- function(coding){
 decode_df <- function(df, coding){
   df |>
     decode_single(coding) |>
-    decode_multi(coding)
+    decode_multi_purrr(coding)
 }
 
 
@@ -511,3 +498,8 @@ decode_df_db <- function(df, coding){
     decode_single(coding) |>
     decode_multi_purrr(coding)
 }
+
+.onLoad <- function(libname, pkgname) {
+  reticulate::configure_environment(pkgname)
+}
+
