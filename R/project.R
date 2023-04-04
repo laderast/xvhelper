@@ -319,9 +319,11 @@ decode_multi_purrr <- function(cohort, coding){
   }
 
   multi_columns <- coding_table |>
+    dplyr::filter(!is.na(is_multi_select)) |>
     dplyr::filter(is_multi_select == "yes" | is_multi_sparse == "yes") |>
     dplyr::filter(ent_field %in% colnames(cohort)) |>
     dplyr::pull(ent_field)
+
 
   multi_cols <- cohort |>
     dplyr::select(dplyr::any_of(multi_columns))
@@ -329,6 +331,7 @@ decode_multi_purrr <- function(cohort, coding){
   multi_cols <- multi_cols |>
     #dplyr::select({{multi_column}}) |>
     dplyr::mutate(rown=dplyr::row_number()) |>
+    #dplyr::mutate(across(-rown), as_character) |>
     tidyr::pivot_longer(-rown, names_to="col", values_to="code") |>
     dplyr::mutate(code :=
                     stringr::str_replace_all(code, '\\[|\\]|\\"', "")) |>
