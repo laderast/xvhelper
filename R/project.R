@@ -94,7 +94,7 @@ merge_coding_data_dict <- function(coding_dict, data_dict) {
   coded_col_df <-
     data_dict |>
       dplyr::mutate(ent_field=glue::glue("{entity}.{name}")) |>
-      dplyr::left_join(y=coding_dict, by="coding_name") |>
+      dplyr::left_join(y=coding_dict, by="coding_name", relationship="many-to-many") |>
       dplyr::mutate(code = as.character(code)) |>
       dplyr::select(title, ent_field, entity, name, coding_name,
              code, meaning, is_sparse_coding,
@@ -372,6 +372,11 @@ decode_multi_purrr <- function(cohort, coding){
   cohort[,multi_columns] <- multi_cols
 
   cohort
+}
+
+
+strip_quotes_and_brackets <- function(df, colname) {
+  {{colname}} := stringr::str_replace_all({{colname}}, '\\[|\\]|\\"', "")
 }
 
 
