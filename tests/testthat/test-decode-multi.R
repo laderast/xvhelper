@@ -38,3 +38,11 @@ test_that("decode multi from database", {
 
   expect_true(is.data.frame(out))
 })
+
+test_that("detect lists from character vectors", {
+
+  load("icd10_new.rda")
+
+  output <- detect_list(small_icd10)
+  expect_equal(TRUE, output$participant.p41202)
+})

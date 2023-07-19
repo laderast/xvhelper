@@ -244,7 +244,7 @@ decode_multi <- function(cohort, coding){
   list_columns <- cohort |>
     dplyr::select(dplyr::any_of(list_cols)) |>
     dplyr::rowwise() |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), paste, collapse=","))
+    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), \(x) paste(x, collapse = ",")))
 
   list_columns <- list_columns[,list_cols]
   cohort[,list_cols] <- list_columns
@@ -305,14 +305,28 @@ decode_multi_purrr <- function(cohort, coding){
     #dplyr::filter(ent_field %in% colnames(cohort))
 
   col_class <- lapply(cohort, class)
+
   list_cols <- names(col_class[col_class == "list"])
+
+  if(length(list_cols)==0){
+    dl <- detect_list(cohort)
+    list_cols <- names(dl[dl == TRUE])
+
+  }
+
+  if(length(list_cols)==0){
+    stop("no list columns in data frame")
+  }
+
+
+  #sum(str_detect("\\["))
 
   if(length(list_cols) !=0) {
   #if column is a list-column, paste values together as comma delimited string
   list_columns <- cohort |>
     dplyr::select(dplyr::any_of(list_cols)) |>
     dplyr::rowwise() |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), paste, collapse=","))
+    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), \(x) paste(x, collapse=",")))
 
   list_columns <- list_columns[,list_cols]
   cohort[,list_cols] <- list_columns
@@ -360,6 +374,24 @@ decode_multi_purrr <- function(cohort, coding){
   cohort
 }
 
+
+#' Detects lists specified as strings in a data frame
+#'
+#' Given data extracted from dx extract_data,
+#'
+#' @param df
+#'
+#' @return
+#'
+#' @examples
+detect_list <- function(df){
+  detect_list_column <- function(col){
+  sum(stringr::str_detect(col[!is.na(col)], "\\[")) > 0
+  }
+  lapply(df[1:100,], detect_list_column)
+}
+
+
 #' Decodes Multi Category variables
 #'
 #' @param cohort
@@ -395,7 +427,8 @@ decode_multi_db <- function(cohort, coding){
   list_columns <- cohort |>
     dplyr::select(dplyr::any_of(list_cols)) |>
     dplyr::rowwise() |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), paste, collapse=","))
+    #dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), paste, collapse=","))
+    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), \(x) paste(x, collapse=",")))
 
   list_columns <- list_columns[,list_cols]
   cohort[,list_cols] <- list_columns
