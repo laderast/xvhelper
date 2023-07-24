@@ -133,7 +133,7 @@ One thing to note is that decoding a large dataset (for UKB Pheno data, this can
 This is not necessarily faster, but it does give the user a sense of progress.
 
 ```{r}
-decoded_cohort <- mydf |>
+decoded_cohort <- mydf[1:10,] |>
   decode_multi_large_df(merged_code, df_size = 2)
 
 knitr::kable(decoded_cohort)
