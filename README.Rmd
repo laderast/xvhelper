@@ -117,6 +117,19 @@ final_cohort2 <- decoded_cohort |>
 knitr::kable(head(final_cohort2[,c(1:5,14)]))
 ```
 
+## Separating out single and multi column decodes
+
+You can have a little more control if you use the two `decode_` functions, `decode_single()` and `decode_multi_purrr()`:
+
+```{r}
+decoded_cohort <- mydf[1:10,] |>
+  decode_single(merged_code) |>
+  decode_multi_purrr(merged_code) |>
+  decode_column_names(merged_code)
+
+knitr::kable(decoded_cohort)
+```
+
 ## Multi-valued columns
 
 Multivalued columns are returned as a pipe (`|`) delimited string (this is to avoid issues with commas within categorical values):
