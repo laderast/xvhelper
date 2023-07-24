@@ -39,6 +39,18 @@ test_that("decode multi from database", {
   expect_true(is.data.frame(out))
 })
 
+test_that("decode multi large df", {
+  load("data_dict.rda")
+  load("icd10new_code.rda")
+  load("icd10_new.rda")
+
+  coded_col_df <- merge_coding_data_dict(coding_df, data_dict)
+  out <- small_icd10 |>
+    decode_multi_large_df(coded_col_df, df_size = 5)
+
+  expect_true(is.data.frame(out))
+})
+
 test_that("detect lists from character vectors", {
 
   load("icd10_new.rda")

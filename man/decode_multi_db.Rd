@@ -13,7 +13,7 @@ decode_multi_db(cohort, coding)
 Labeled data frame where multi category columns are decoded
 }
 \description{
-Decodes Multi Category variables
+For a smaller data frame, decodes the columns that have a list of values.
 }
 \examples{
 data(coding_dict)

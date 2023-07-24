@@ -9,9 +9,6 @@ decode_df(df, coding)
 \arguments{
 \item{coding}{}
 }
-\value{
-
-}
 \description{
 Main Function to Decode Fields from Codings
 }

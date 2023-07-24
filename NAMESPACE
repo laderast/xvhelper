@@ -3,6 +3,7 @@
 export(decode_column_names)
 export(decode_df)
 export(decode_multi)
+export(decode_multi_large_df)
 export(decode_multi_purrr)
 export(decode_single)
 export(explore_field_list)

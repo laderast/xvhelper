@@ -9,9 +9,6 @@ merge_coding_data_dict(coding_dict, data_dict)
 \arguments{
 \item{data_dict}{}
 }
-\value{
-
-}
 \description{
 Title
 }

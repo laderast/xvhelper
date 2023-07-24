@@ -13,7 +13,12 @@ decode_multi_purrr(cohort, coding)
 Labeled data frame where multi category columns are decoded
 }
 \description{
-Decodes Multi Category variables
+For a smaller data frame, decodes the columns that have a list of values.
+}
+\details{
+For a larger data frame, such as from UK Biobank, we recommend you use
+\seealso{decode_multi_large_df}, which will split your data frame into
+smaller ones for decoding.
 }
 \examples{
 data(coding_dict)

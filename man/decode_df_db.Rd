@@ -9,9 +9,6 @@ decode_df_db(df, coding)
 \arguments{
 \item{coding}{}
 }
-\value{
-
-}
 \description{
 Main Function to Decode Fields from Codings using Duck DB
 }
