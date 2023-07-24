@@ -34,10 +34,16 @@
     <loc>/reference/decode_multi_db.html</loc>
   </url>
   <url>
+    <loc>/reference/decode_multi_large_df.html</loc>
+  </url>
+  <url>
     <loc>/reference/decode_multi_purrr.html</loc>
   </url>
   <url>
     <loc>/reference/decode_single.html</loc>
+  </url>
+  <url>
+    <loc>/reference/detect_list.html</loc>
   </url>
   <url>
     <loc>/reference/explore_field_list.html</loc>
