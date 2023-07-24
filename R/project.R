@@ -284,6 +284,12 @@ decode_multi <- function(cohort, coding){
 
 #' Decodes Multi Category variables
 #'
+#' For a smaller data frame, decodes the columns that have a list of values.
+#'
+#' For a larger data frame, such as from UK Biobank, we recommend you use
+#' \seealso{decode_multi_large_df}, which will split your data frame into
+#' smaller ones for decoding.
+#'
 #' @param cohort
 #' @param coding
 #'
@@ -337,7 +343,6 @@ decode_multi_purrr <- function(cohort, coding){
     dplyr::filter(is_multi_select == "yes" | is_multi_sparse == "yes") |>
     dplyr::filter(ent_field %in% colnames(cohort)) |>
     dplyr::pull(ent_field)
-
 
   multi_cols <- cohort |>
     dplyr::select(dplyr::any_of(multi_columns))
@@ -393,11 +398,17 @@ detect_list <- function(df){
   detect_list_column <- function(col){
   sum(stringr::str_detect(col[!is.na(col)], "\\[")) > 0
   }
-  lapply(df[1:100,], detect_list_column)
+  if(nrow(df) > 100){
+    df <- df[1:100,]
+  }
+
+  lapply(df, detect_list_column)
 }
 
 
 #' Decodes Multi Category variables
+#'
+#' For a smaller data frame, decodes the columns that have a list of values.
 #'
 #' @param cohort
 #' @param coding
@@ -539,6 +550,78 @@ decode_df_db <- function(df, coding){
     decode_single(coding) |>
     decode_multi_purrr(coding)
 }
+
+
+split_df_by_index <- function(df, split_by=1000){
+  list_size <- nrow(df) %/% split_by
+  df_vec_end <- 1:list_size * split_by
+
+  df_vec_end[list_size] = nrow(df)
+  df_vec_start <- df_vec_end - (split_by-1)
+  df_ind <- data.frame(ind=1:list_size, start=df_vec_start,
+                       end = df_vec_end)
+  df_ind
+
+  out_list <- list()
+
+  for(i in 1:nrow(df_ind)){
+    row_vals <- df_ind[i,]
+    out_list[[i]] <- df[row_vals$start:row_vals$end,]
+  }
+
+  out_list
+}
+
+process_multi_list <- function(out_list, codings){
+  list_len <- length(out_list)
+
+  pb <- progress::progress_bar$new(total = list_len)
+
+  map_fun <- function(x, codings){
+      pb$tick()
+      decode_multi_purrr(cohort = x, coding = codings)
+  }
+
+  out_list2 <- list()
+
+  print("Processing multi columns")
+
+  #for(i in 1:length(out_list))  {
+  #    pb$tick()
+  #    out_list2[[i]] <- map_fun(out_list[[i]], codings)
+  #}
+
+  out_list2 <- purrr::map(out_list, map_fun, codings)
+
+  out_list2
+}
+
+
+#' Decodes large columns of a large data frame by splitting it
+#'
+#' Given an extremely large data frame to decode (such as those of UK Biobank,
+#' over 500K rows), split the data into a list of smaller data frames, decode
+#' each smaller data frame, and then merge list into a larger data frame.
+#'
+#' This method is not necessarily faster than merging the entire data frame,
+#' but it shows a progress bar.
+#'
+#' @param df - data.frame to process
+#' @param coding - coding data frame
+#' @param df_size - size of the smaller data frames in number of rows.
+#'
+#' @return decoded data frame in terms of columns
+#' @export
+#'
+#' @examples
+decode_multi_large_df <- function(df, coding, df_size=2000){
+  out_list <- split_df_by_index(df, split_by = df_size)
+  out_list2 <- process_multi_list(out_list, coding)
+  out_frame <- purrr::reduce(out_list2, rbind)
+  out_frame
+
+}
+
 
 .onLoad <- function(libname, pkgname) {
   reticulate::configure_environment(pkgname)
