@@ -256,7 +256,7 @@ knitr::kable(decoded_cohort)
 
 If you use `dbGetQuery()` to fetch your table from Spark, multi-value
 columns will be returned as list-columns. `decode_df` will return a
-comma-delimited string for these columns as well.
+pipe-delimited string for these columns as well.
 
 ``` r
 tibble::tibble(mydf)
