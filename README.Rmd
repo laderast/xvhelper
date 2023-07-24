@@ -144,7 +144,8 @@ If we want to split these out, we can use `tidyr::separate_longer_delim()`:
 ```{r}
 decoded_cohort |>
   dplyr::select(participant_eid, diagnoses_main_icd10) |>
-  tidyr::separate_longer_delim(diagnoses_main_icd10, delim="|")
+  tidyr::separate_longer_delim(diagnoses_main_icd10, delim="|") |>
+  knitr::kable()
 ```
 
 
