@@ -218,12 +218,15 @@ knitr::kable(final_cohort[1:10,"diagnoses_main_icd10"])
 
 One thing to note is that decoding a large dataset (for UKB Pheno data,
 this can be over 500K rows) takes time. The new function
-`decode_multi_large_df` will split the dataset into a smaller number of
-data frames, the size of which is specified by `df_size`, which is then
+`decode_multi_large_df()` will split the dataset into a number of data
+frames, the size of which is specified by `df_size`, which is then
 processed one data frame at a time, with a progress bar.
 
 This is not necessarily faster, but it does give the user a sense of
 progress.
+
+Note that the default value for `df_size` is 1000. We’re only changing
+it here because the example data is smaller.
 
 ``` r
 decoded_cohort <- mydf[1:10,] |>
