@@ -96,6 +96,23 @@ each smaller data frame, and then merge list into a larger data frame.</p>
 but it shows a progress bar.</p>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#' data(coding_dict)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">cohort</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">data_dict</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">cdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="merge_coding_data_dict.html">merge_coding_data_dict</a></span><span class="op">(</span><span class="va">coding_dict</span>, <span class="va">data_dict</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">cohort</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">decode_multi_large_df</span><span class="op">(</span><span class="va">cdata</span>, df_size<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Processing multi columns"</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in purrr::map(out_list, map_fun, codings):</span> <span style="color: #00BBBB;">ℹ</span> In index: 17.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `decode_multi_purrr()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> no list columns in data frame</span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

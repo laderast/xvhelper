@@ -65,8 +65,14 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>coding</dt>
-<dd></dd>
+    <dl><dt>cohort</dt>
+<dd><ul><li><p>data frame from dx extract_dataset</p></li>
+</ul></dd>
+
+
+<dt>coding</dt>
+<dd><ul><li><p>coding/data dict from merge_coding_data_dict</p></li>
+</ul></dd>
 
 </dl></div>
     <div id="value">
@@ -85,27 +91,8 @@
 <span class="r-in"><span><span class="va">cdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="merge_coding_data_dict.html">merge_coding_data_dict</a></span><span class="op">(</span><span class="va">coding_dict</span>, <span class="va">data_dict</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cohort</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="decode_multi.html">decode_multi</a></span><span class="op">(</span><span class="va">cdata</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 100 × 18</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    participant.p21022 participant.p100240_i0 participant.p100240_i1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>                 43                     <span style="color: #BB0000;">NA</span>                      1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>                 60                     <span style="color: #BB0000;">NA</span>                     <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>                 53                     <span style="color: #BB0000;">NA</span>                      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>                 62                     <span style="color: #BB0000;">NA</span>                     <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>                 67                     <span style="color: #BB0000;">NA</span>                     <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>                 61                     <span style="color: #BB0000;">NA</span>                     <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>                 66                     <span style="color: #BB0000;">NA</span>                     <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>                 56                     <span style="color: #BB0000;">NA</span>                     <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>                 55                     <span style="color: #BB0000;">NA</span>                     <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>                 53                     <span style="color: #BB0000;">NA</span>                     <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 90 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 15 more variables: participant.p100240_i2 &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   participant.p100240_i3 &lt;dbl&gt;, participant.p100240_i4 &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   participant.p1498_i0 &lt;dbl&gt;, participant.p1498_i1 &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   participant.p1498_i2 &lt;dbl&gt;, participant.p1508_i0 &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   participant.p1508_i1 &lt;dbl&gt;, participant.p1508_i2 &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   participant.p41202 &lt;chr&gt;, participant.p31 &lt;dbl&gt;, …</span></span>
+<span class="r-in"><span>  <span class="fu">decode_multi</span><span class="op">(</span><span class="va">cdata</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in decode_multi(cohort, cdata):</span> could not find function "decode_multi"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
