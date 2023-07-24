@@ -136,8 +136,17 @@ Multivalued columns are returned as a pipe (`|`) delimited string (this is to av
 
 
 ```{r}
-knitr::kable(final_cohort[1:10,"diagnoses_main_icd10"])
+knitr::kable(decoded_cohort[1:10,"diagnoses_main_icd10"])
 ```
+
+If we want to split these out, we can use `tidyr::separate_longer_delim()`:
+
+```{r}
+decoded_cohort |>
+  dplyr::select(participant_eid, diagnoses_main_icd10) |>
+  tidyr::separate_longer_delim(diagnoses_main_icd10, delim="|")
+```
+
 
 ## New (7/24) Incremental Decoding of Very Large Data Frames
 

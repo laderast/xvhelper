@@ -198,10 +198,10 @@ Multivalued columns are returned as a pipe (`|`) delimited string (this
 is to avoid issues with commas within categorical values):
 
 ``` r
-knitr::kable(final_cohort[1:10,"diagnoses_main_icd10"])
+knitr::kable(decoded_cohort[1:10,"diagnoses_main_icd10"])
 ```
 
-| diagnoses_main_icd10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| x                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | R07.3 Other chest pain\|Z09.9 Follow-up examination after unspecified treatment for other conditions\|I83.9 Varicose veins of lower extremities without ulcer or inflammation\|Z30.5 Surveillance of (intra-uterine) contraceptive device\|R07 Pain in throat and chest\|R00-R09 Symptoms and signs involving the circulatory and respiratory systems\|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified\|Z09 Follow-up examination after treatment for conditions other than malignant neoplasms\|Z00-Z13 Persons encountering health services for examination and investigation\|Chapter XXI Factors influencing health status and contact with health services\|I83 Varicose veins of lower extremities\|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified\|Chapter IX Diseases of the circulatory system\|Z30 Contraceptive management\|Z30-Z39 Persons encountering health services in circumstances related to reproduction |
 | J32.0 Chronic maxillary sinusitis\|R10.3 Pain localised to other parts of lower abdomen\|J32 Chronic sinusitis\|J30-J39 Other diseases of upper respiratory tract\|Chapter X Diseases of the respiratory system\|R10 Abdominal and pelvic pain\|R10-R19 Symptoms and signs involving the digestive system and abdomen\|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -213,6 +213,195 @@ knitr::kable(final_cohort[1:10,"diagnoses_main_icd10"])
 | I12.0 Hypertensive renal disease with renal failure\|N43.3 Hydrocele, unspecified\|G45.9 Transient cerebral ischaemic attack, unspecified\|I12 Hypertensive renal disease\|I10-I15 Hypertensive diseases\|Chapter IX Diseases of the circulatory system\|N43 Hydrocele and spermatocele\|N40-N51 Diseases of male genital organs\|Chapter XIV Diseases of the genitourinary system\|G45 Transient cerebral ischaemic attacks and related syndromes\|G40-G47 Episodic and paroxysmal disorders\|Chapter VI Diseases of the nervous system                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | Z03.9 Observation for suspected disease or condition, unspecified\|Q66.8 Other congenital deformities of feet\|M20.1 Hallux valgus (acquired)\|Z03 Medical observation and evaluation for suspected diseases and conditions\|Z00-Z13 Persons encountering health services for examination and investigation\|Chapter XXI Factors influencing health status and contact with health services\|Q66 Congenital deformities of feet\|Q65-Q79 Congenital malformations and deformations of the musculoskeletal system\|Chapter XVII Congenital malformations, deformations and chromosomal abnormalities\|M20 Acquired deformities of fingers and toes\|M20-M25 Other joint disorders\|Chapter XIII Diseases of the musculoskeletal system and connective tissue                                                                                                                                                                                                                                                                |
 | Z87.1 Personal history of diseases of the digestive system\|C61 Malignant neoplasm of prostate\|M75.1 Rotator cuff syndrome\|R31 Unspecified haematuria\|D12.5 Sigmoid colon\|Z87 Personal history of other diseases and conditions\|Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status\|Chapter XXI Factors influencing health status and contact with health services\|C60-C63 Malignant neoplasms of male genital organs\|Chapter II Neoplasms\|M75 Shoulder lesions\|M70-M79 Other soft tissue disorders\|Chapter XIII Diseases of the musculoskeletal system and connective tissue\|R30-R39 Symptoms and signs involving the urinary system\|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified\|D12 Benign neoplasm of colon, rectum, anus and anal canal\|D10-D36 Benign neoplasms                                                                                            |
+
+If we want to split these out, we can use
+`tidyr::separate_longer_delim()`:
+
+``` r
+decoded_cohort |>
+  dplyr::select(participant_eid, diagnoses_main_icd10) |>
+  tidyr::separate_longer_delim(diagnoses_main_icd10, delim="|")
+#>    participant_eid
+#> 1   sample_100_116
+#> 2   sample_100_116
+#> 3   sample_100_116
+#> 4   sample_100_116
+#> 5   sample_100_116
+#> 6   sample_100_116
+#> 7   sample_100_116
+#> 8   sample_100_116
+#> 9   sample_100_116
+#> 10  sample_100_116
+#> 11  sample_100_116
+#> 12  sample_100_116
+#> 13  sample_100_116
+#> 14  sample_100_116
+#> 15  sample_100_116
+#> 16  sample_100_142
+#> 17  sample_100_142
+#> 18  sample_100_142
+#> 19  sample_100_142
+#> 20  sample_100_142
+#> 21  sample_100_142
+#> 22  sample_100_142
+#> 23  sample_100_142
+#> 24  sample_100_285
+#> 25  sample_100_290
+#> 26  sample_100_290
+#> 27  sample_100_290
+#> 28  sample_100_290
+#> 29  sample_100_304
+#> 30  sample_100_304
+#> 31  sample_100_304
+#> 32  sample_100_304
+#> 33  sample_100_328
+#> 34  sample_100_328
+#> 35  sample_100_328
+#> 36  sample_100_328
+#> 37  sample_100_348
+#> 38  sample_100_348
+#> 39  sample_100_348
+#> 40  sample_100_348
+#> 41  sample_100_348
+#> 42  sample_100_348
+#> 43  sample_100_348
+#> 44  sample_100_348
+#> 45  sample_100_348
+#> 46  sample_100_348
+#> 47  sample_100_348
+#> 48  sample_100_348
+#> 49   sample_100_36
+#> 50   sample_100_36
+#> 51   sample_100_36
+#> 52   sample_100_36
+#> 53   sample_100_36
+#> 54   sample_100_36
+#> 55   sample_100_36
+#> 56   sample_100_36
+#> 57   sample_100_36
+#> 58   sample_100_36
+#> 59   sample_100_36
+#> 60   sample_100_36
+#> 61  sample_100_362
+#> 62  sample_100_362
+#> 63  sample_100_362
+#> 64  sample_100_362
+#> 65  sample_100_362
+#> 66  sample_100_362
+#> 67  sample_100_362
+#> 68  sample_100_362
+#> 69  sample_100_362
+#> 70  sample_100_362
+#> 71  sample_100_362
+#> 72  sample_100_362
+#> 73  sample_100_384
+#> 74  sample_100_384
+#> 75  sample_100_384
+#> 76  sample_100_384
+#> 77  sample_100_384
+#> 78  sample_100_384
+#> 79  sample_100_384
+#> 80  sample_100_384
+#> 81  sample_100_384
+#> 82  sample_100_384
+#> 83  sample_100_384
+#> 84  sample_100_384
+#> 85  sample_100_384
+#> 86  sample_100_384
+#> 87  sample_100_384
+#> 88  sample_100_384
+#> 89  sample_100_384
+#>                                                                                                                     diagnoses_main_icd10
+#> 1                                                                                                                 R07.3 Other chest pain
+#> 2                                                           Z09.9 Follow-up examination after unspecified treatment for other conditions
+#> 3                                                                I83.9 Varicose veins of lower extremities without ulcer or inflammation
+#> 4                                                                             Z30.5 Surveillance of (intra-uterine) contraceptive device
+#> 5                                                                                                           R07 Pain in throat and chest
+#> 6                                                           R00-R09 Symptoms and signs involving the circulatory and respiratory systems
+#> 7                                  Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified
+#> 8                                                Z09 Follow-up examination after treatment for conditions other than malignant neoplasms
+#> 9                                                         Z00-Z13 Persons encountering health services for examination and investigation
+#> 10                                                        Chapter XXI Factors influencing health status and contact with health services
+#> 11                                                                                               I83 Varicose veins of lower extremities
+#> 12                                                I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified
+#> 13                                                                                         Chapter IX Diseases of the circulatory system
+#> 14                                                                                                          Z30 Contraceptive management
+#> 15                                                 Z30-Z39 Persons encountering health services in circumstances related to reproduction
+#> 16                                                                                                     J32.0 Chronic maxillary sinusitis
+#> 17                                                                                  R10.3 Pain localised to other parts of lower abdomen
+#> 18                                                                                                                 J32 Chronic sinusitis
+#> 19                                                                                     J30-J39 Other diseases of upper respiratory tract
+#> 20                                                                                          Chapter X Diseases of the respiratory system
+#> 21                                                                                                         R10 Abdominal and pelvic pain
+#> 22                                                                 R10-R19 Symptoms and signs involving the digestive system and abdomen
+#> 23                                 Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified
+#> 24                                                                                                                                    NA
+#> 25                                                                                                                R07.3 Other chest pain
+#> 26                                                                                                          R07 Pain in throat and chest
+#> 27                                                          R00-R09 Symptoms and signs involving the circulatory and respiratory systems
+#> 28                                 Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified
+#> 29                                                                                                             I87.1 Compression of vein
+#> 30                                                                                                          I87 Other disorders of veins
+#> 31                                                I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified
+#> 32                                                                                         Chapter IX Diseases of the circulatory system
+#> 33                                                                                                                  K01.1 Impacted teeth
+#> 34                                                                                                       K01 Embedded and impacted teeth
+#> 35                                                                             K00-K14 Diseases of oral cavity, salivary glands and jaws
+#> 36                                                                                           Chapter XI Diseases of the digestive system
+#> 37                                                                                            Q66.8 Other congenital deformities of feet
+#> 38                                                                                            G56.8 Other mononeuropathies of upper limb
+#> 39                                                                                                                  R07.0 Pain in throat
+#> 40                                                                                                    Q66 Congenital deformities of feet
+#> 41                                                       Q65-Q79 Congenital malformations and deformations of the musculoskeletal system
+#> 42                                                     Chapter XVII Congenital malformations, deformations and chromosomal abnormalities
+#> 43                                                                                                    G56 Mononeuropathies of upper limb
+#> 44                                                                                        G50-G59 Nerve, nerve root and plexus disorders
+#> 45                                                                                             Chapter VI Diseases of the nervous system
+#> 46                                                                                                          R07 Pain in throat and chest
+#> 47                                                          R00-R09 Symptoms and signs involving the circulatory and respiratory systems
+#> 48                                 Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified
+#> 49                                                                                   I12.0 Hypertensive renal disease with renal failure
+#> 50                                                                                                          N43.3 Hydrocele, unspecified
+#> 51                                                                                G45.9 Transient cerebral ischaemic attack, unspecified
+#> 52                                                                                                        I12 Hypertensive renal disease
+#> 53                                                                                                         I10-I15 Hypertensive diseases
+#> 54                                                                                         Chapter IX Diseases of the circulatory system
+#> 55                                                                                                        N43 Hydrocele and spermatocele
+#> 56                                                                                               N40-N51 Diseases of male genital organs
+#> 57                                                                                      Chapter XIV Diseases of the genitourinary system
+#> 58                                                                        G45 Transient cerebral ischaemic attacks and related syndromes
+#> 59                                                                                             G40-G47 Episodic and paroxysmal disorders
+#> 60                                                                                             Chapter VI Diseases of the nervous system
+#> 61                                                                     Z03.9 Observation for suspected disease or condition, unspecified
+#> 62                                                                                            Q66.8 Other congenital deformities of feet
+#> 63                                                                                                        M20.1 Hallux valgus (acquired)
+#> 64                                                          Z03 Medical observation and evaluation for suspected diseases and conditions
+#> 65                                                        Z00-Z13 Persons encountering health services for examination and investigation
+#> 66                                                        Chapter XXI Factors influencing health status and contact with health services
+#> 67                                                                                                    Q66 Congenital deformities of feet
+#> 68                                                       Q65-Q79 Congenital malformations and deformations of the musculoskeletal system
+#> 69                                                     Chapter XVII Congenital malformations, deformations and chromosomal abnormalities
+#> 70                                                                                          M20 Acquired deformities of fingers and toes
+#> 71                                                                                                         M20-M25 Other joint disorders
+#> 72                                                             Chapter XIII Diseases of the musculoskeletal system and connective tissue
+#> 73                                                                            Z87.1 Personal history of diseases of the digestive system
+#> 74                                                                                                    C61 Malignant neoplasm of prostate
+#> 75                                                                                                           M75.1 Rotator cuff syndrome
+#> 76                                                                                                            R31 Unspecified haematuria
+#> 77                                                                                                                   D12.5 Sigmoid colon
+#> 78                                                                                 Z87 Personal history of other diseases and conditions
+#> 79 Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status
+#> 80                                                        Chapter XXI Factors influencing health status and contact with health services
+#> 81                                                                                    C60-C63 Malignant neoplasms of male genital organs
+#> 82                                                                                                                  Chapter II Neoplasms
+#> 83                                                                                                                  M75 Shoulder lesions
+#> 84                                                                                                   M70-M79 Other soft tissue disorders
+#> 85                                                             Chapter XIII Diseases of the musculoskeletal system and connective tissue
+#> 86                                                                               R30-R39 Symptoms and signs involving the urinary system
+#> 87                                 Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified
+#> 88                                                                             D12 Benign neoplasm of colon, rectum, anus and anal canal
+#> 89                                                                                                              D10-D36 Benign neoplasms
+```
 
 ## New (7/24) Incremental Decoding of Very Large Data Frames
 
