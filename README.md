@@ -35,7 +35,7 @@ patients from UKB RAP.
 ## Read in CSV file or SQL generated `data.frame`
 
 `{xvhelper}` works with both the CSV files that is generated from
-`dx extrqct_dataset` or the `datq.frame` that is generated from running
+`dx extract_dataset` or the `datq.frame` that is generated from running
 the Spark SQL query.
 
 If you need to load the CSV file in, `readr::read_csv` is recommended:
