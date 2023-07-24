@@ -134,7 +134,10 @@ This is not necessarily faster, but it does give the user a sense of progress.
 
 ```{r}
 decoded_cohort <- mydf[1:10,] |>
-  decode_multi_large_df(merged_code, df_size = 2)
+  decode_single(merged_code) |>
+  decode_multi_large_df(merged_code, df_size = 2) |>
+  decode_column_names(merged_code)
+
 
 knitr::kable(decoded_cohort)
 ```
