@@ -575,23 +575,16 @@ split_df_by_index <- function(df, split_by=1000){
 process_multi_list <- function(out_list, codings){
   list_len <- length(out_list)
 
-  pb <- progress::progress_bar$new(total = list_len)
+  id <- cli::cli_progress_bar("decoding multi columns", total = list_len)
 
-  map_fun <- function(x, codings){
-      pb$tick()
+  map_fun <- function(x, codings, id){
+      cli::cli_progress_update(id=id)
       decode_multi_purrr(cohort = x, coding = codings)
   }
 
-  out_list2 <- list()
+  out_list2 <- purrr::map(out_list, map_fun, codings, id)
 
-  print("Processing multi columns")
-
-  #for(i in 1:length(out_list))  {
-  #    pb$tick()
-  #    out_list2[[i]] <- map_fun(out_list[[i]], codings)
-  #}
-
-  out_list2 <- purrr::map(out_list, map_fun, codings)
+  cli::cli_progress_done()
 
   out_list2
 }
@@ -624,6 +617,6 @@ decode_multi_large_df <- function(df, coding, df_size=2000){
 
 
 .onLoad <- function(libname, pkgname) {
-  reticulate::configure_environment(pkgname)
+  reticulate::import("dxpy")
 }
 
