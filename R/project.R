@@ -5,7 +5,8 @@
 #' This function leverages reactable to give a searchable table of fields. It's most useful
 #' in a Jupyter Notebook or RMarkdown/Quarto Document
 #'
-#' @param dict
+#' @param coding_data_dict - a coding/data dictionary created by merge_coding_data_dict or
+#' by build_data_dict()
 #'
 #' @return none - a reactable table will be created in the document, with a searchable window.
 #' @export
@@ -19,12 +20,29 @@
 #'
 #' search_field_list(cdata)
 #'
-explore_field_list <- function(dict) {
-  dict |>
-    dplyr::select(title, entity, name, coding_name, units) |>
+explore_field_list <- function(ds_id, path=".") {
+
+  app_name <- get_name_from_full_id(ds_id)
+
+  if(length(app_name)==0){
+    cli_abort("Check whether {ds_id} is a dataset")
+  }
+
+  data_dict_path <- list.files(path=path,
+                               pattern=glue::glue("{app_name}.data_dictionary.csv"),
+                               recursive = TRUE, full.names = TRUE)
+
+  if(length(data_dict_path)==0){
+    cli::cli_abort("Can't find a data dictionary for {app_name} - generate it with get_dictionaries({ds_id})")
+  }
+
+  dd <- readr::read_csv(data_dict_path, show_col_types = FALSE)
+
+  dd |>
+    dplyr::select(title, entity, name) |>
+    dplyr::mutate(ent_field = glue::glue("{entity}.{name}")) |>
     reactable::reactable(searchable = TRUE)
 }
-
 
 
 #' Returns cleaned field titles for a cohort dataset
@@ -494,15 +512,6 @@ decode_multi_db <- function(cohort, coding){
 }
 
 
-
-build_coding_table <- function(coding){
-
-  coding |>
-    dplyr::select(ent_field, coding_name, is_multi_select, is_sparse_coding) |>
-    dplyr::distinct() |>
-    dplyr::mutate(is_multi_sparse=dplyr::coalesce(is_multi_select, is_sparse_coding))
-}
-
 #' Main Function to Decode Fields from Codings
 #'
 #' @param df
@@ -551,6 +560,13 @@ decode_df_db <- function(df, coding){
     decode_multi_purrr(coding)
 }
 
+build_coding_table <- function(coding){
+
+  coding |>
+    dplyr::select(ent_field, coding_name, is_multi_select, is_sparse_coding) |>
+    dplyr::distinct() |>
+    dplyr::mutate(is_multi_sparse=dplyr::coalesce(is_multi_select, is_sparse_coding))
+}
 
 split_df_by_index <- function(df, split_by=1000){
   list_size <- nrow(df) %/% split_by
@@ -575,23 +591,16 @@ split_df_by_index <- function(df, split_by=1000){
 process_multi_list <- function(out_list, codings){
   list_len <- length(out_list)
 
-  pb <- progress::progress_bar$new(total = list_len)
+  id <- cli::cli_progress_bar("decoding multi columns", total = list_len)
 
-  map_fun <- function(x, codings){
-      pb$tick()
+  map_fun <- function(x, codings, id){
+      cli::cli_progress_update(id=id)
       decode_multi_purrr(cohort = x, coding = codings)
   }
 
-  out_list2 <- list()
+  out_list2 <- purrr::map(out_list, map_fun, codings, id)
 
-  print("Processing multi columns")
-
-  #for(i in 1:length(out_list))  {
-  #    pb$tick()
-  #    out_list2[[i]] <- map_fun(out_list[[i]], codings)
-  #}
-
-  out_list2 <- purrr::map(out_list, map_fun, codings)
+  cli::cli_progress_done()
 
   out_list2
 }
@@ -623,7 +632,4 @@ decode_multi_large_df <- function(df, coding, df_size=2000){
 }
 
 
-.onLoad <- function(libname, pkgname) {
-  reticulate::configure_environment(pkgname)
-}
 

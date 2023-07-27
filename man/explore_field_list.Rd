@@ -4,10 +4,13 @@
 \alias{explore_field_list}
 \title{Given a data dictionary, displays a searachable table in a quarto document or Jupyter Notebook}
 \usage{
-explore_field_list(dict)
+explore_field_list(ds_id, path = ".")
 }
 \arguments{
-\item{dict}{}
+\item{coding_data_dict}{\itemize{
+\item a coding/data dictionary created by merge_coding_data_dict or
+by build_data_dict()
+}}
 }
 \value{
 none - a reactable table will be created in the document, with a searchable window.

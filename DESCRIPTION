@@ -31,5 +31,7 @@ Imports:
     janitor,
     stringr,
     tibble,
-    reticulate
+    reticulate,
+    cli,
+    sys
 VignetteBuilder: knitr
