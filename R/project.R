@@ -616,7 +616,4 @@ decode_multi_large_df <- function(df, coding, df_size=2000){
 }
 
 
-.onLoad <- function(libname, pkgname) {
-  reticulate::import("dxpy")
-}
 

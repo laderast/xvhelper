@@ -4,16 +4,17 @@
 #' @export
 #'
 #' @examples
-install_dxpy <- function() {
-  env_name <- env_name()
+install_dxpy <- function(method="auto", conda="auto") {
+  #env_name <- env_name()
 
-  if(!reticulate::virtualenv_exists(env_name)){
-    reticulate::virtualenv_create(env_name)
-  }
+  #if(!reticulate::virtualenv_exists(env_name)){
+  #  reticulate::virtualenv_create(env_name)
+  #}
 
-  reticulate::virtualenv_install(env_name, packages = c("dxpy", "pandas"))
-  cli::cli_alert_success("dxpy environment is now installed and activated")
-  cli::cli_alert_success("use reticulate::use_virtualenv({env_name}) to use")
+  reticulate::py_install(packages=c("dxpy", "pandas"), method=method, auto=auto)
+  #reticulate::virtualenv_install(env_name, packages = c("dxpy", "pandas"))
+  cli::cli_alert_success("dxpy is now installed")
+  #cli::cli_alert_success("use reticulate::use_virtualenv('{env_name}') to use")
 
 }
 
@@ -21,11 +22,7 @@ env_name <- function(){
   return("dxpy_env")
 }
 
-format_field_list <- function(field_list, return_eids=TRUE){
-
-  if(return_eids){
-    field_list = c("participant.eid", field_list)
-  }
+format_field_list <- function(field_list){
 
   return(paste(field_list, collapse = ","))
 }
@@ -40,7 +37,7 @@ format_field_list <- function(field_list, return_eids=TRUE){
 #' @export
 #'
 #' @examples
-extract_data <- function(dataset_id, field_list, return_eids=TRUE) {
+extract_data <- function(dataset_id, field_list) {
   env_name <- check_env()
 
   ds_name <- get_name_from_full_id(dataset_id)
@@ -48,28 +45,23 @@ extract_data <- function(dataset_id, field_list, return_eids=TRUE) {
 
   cmd <- "dx"
 
-  field_list_format <- format_field_list(field_list, return_eids)
+  field_list_format <- format_field_list(field_list)
 
   args <- c("extract_dataset", glue::glue("{dataset_id}"),
             "--fields", glue::glue("{field_list_format}"),
             "-o", file_out)
 
   sys::exec_wait(cmd=cmd, args=args)
-  cli::cli_alert_success("data is now extracted to {file_out}")
+  curr_dir <- getwd()
+  cli::cli_alert_success("data is now extracted to {curr_dir}/{file_out}")
 
 }
 
-
-
 check_env <- function(){
-  env_name <- env_name()
-
-  if(!reticulate::virtualenv_exists(env_name)){
+  if(!reticulate::py_module_available("dxpy")){
     cli::cli_abort("install dxpy using install_dxpy() first")
   }
-  reticulate::use_virtualenv(env_name)
-
-  return(env_name)
+  return(TRUE)
 }
 
 #' Finds the current dataset id in the project
@@ -80,8 +72,6 @@ check_env <- function(){
 #' @examples
 find_dataset_id <- function(){
   env_name <- check_env()
-
-  dxpy <- reticulate::import("dxpy")
 
   dispensed_dataset <- dxpy$find_one_data_object(
     typename='Dataset',
@@ -98,22 +88,6 @@ find_dataset_id <- function(){
   return(ds_id)
 }
 
-find_dataset_name <- function(){
-  env_name <- check_env()
-
-  dxpy <- reticulate::import("dxpy")
-
-  dispensed_database <- dxpy$find_one_data_object(
-    classname="database",
-    name='app*',
-    folder='/',
-    name_mode='glob',
-    describe=TRUE)
-
-  ds_name <- dispensed_database$describe$name
-
-  return(ds_name)
-}
 
 #' Find all datasets in the current project
 #'
@@ -126,6 +100,7 @@ find_all_datasets <- function() {
     typename = "Dataset",
     name="app*.dataset",
     folder="/",name_mode="glob",
+    recurse = TRUE,
     describe = TRUE)
 
   extract_fun <- function(x){desc_obj <- x$describe
@@ -138,17 +113,30 @@ find_all_datasets <- function() {
 
   out_frame <- purrr::reduce(out_list, rbind)
 
+  out_frame |>
+    dplyr::mutate(project_record = glue::glue("{project}:{id}"))
+
   out_frame <- out_frame |>
     dplyr::arrange(desc(name))
 
   return(out_frame)
 }
 
+find_linked_dataset <- function(cohort_id){
+  out <- dxpy$describe(cohort_id)
+  links <- out$links
+  obj_id <- links[stringr::str_detect(links, "record")]
+  proj_id <- out$project
+
+  ds_id <- glue::glue("{proj_id}:{obj_id}")
+  return(ds_id)
+}
+
 find_all_cohorts <- function(){
 
   iter_py <- dxpy$find_data_objects(
     typename = "DatabaseQuery",
-    folder="/",name_mode="glob",recurse = TRUE,
+    folder="/",name_mode="glob", recurse = TRUE,
     describe = TRUE)
 
   extract_fun <- function(x){desc_obj <- x$describe
@@ -160,7 +148,8 @@ find_all_cohorts <- function(){
   out_list <- iterate(iter_py, extract_fun)
   out_frame <- purrr::reduce(out_list, rbind)
   out_frame <- out_frame |>
-    dplyr::arrange(desc(name))
+    dplyr::arrange(desc(name)) |>
+    dplyr::mutate(project_record = glue::glue("{project}:{id}"))
 
   out_frame
 
@@ -183,14 +172,15 @@ list_fields <- function(dataset_id=NULL) {
 
   sys::exec_wait(cmd, args = cmdargs, std_out = tmp)
 
-  out_fields <- readr::read_delim(tmp)
+  out_fields <- readr::read_delim(tmp, col_names = FALSE)
+  colnames(out_fields) <- c("field_id", "field_title")
   out_fields
 }
 
 get_name_from_full_id <- function(id){
   obj_id <- strsplit(id, ":")[[1]][2]
   ds_name <- dxpy$describe(obj_id)
-  ds_name
+  ds_name$name
 }
 
 get_dictionaries <- function(dataset_id=NULL){
@@ -209,7 +199,9 @@ get_dictionaries <- function(dataset_id=NULL){
 
   sys::exec_wait(cmd, args = cmdargs, std_out = tmp)
 
-  cli::cli_alert_success("Data dictionary is downloaded as {ds_name}.dataset.data_dictionary.csv")
-  cli::cli_alert_success("Coding dictionary is downloaded as {ds_name}.dataset.codings.csv")
-  cli::cli_alert_success("Entity dictionary is downloaded as {ds_name}.entity_dictionary.csv")
+  curr_dir <- getwd()
+
+  cli::cli_alert_success("Data dictionary is downloaded as {curr_dir}/{ds_name}.dataset.data_dictionary.csv")
+  cli::cli_alert_success("Coding dictionary is downloaded as {curr_dir}/{ds_name}.dataset.codings.csv")
+  cli::cli_alert_success("Entity dictionary is downloaded as {curr_dir}/{ds_name}.entity_dictionary.csv")
 }

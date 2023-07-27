@@ -1,0 +1,90 @@
+---
+title: "Downloading Dataset and Cohort Data"
+format: html
+---
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+install.packages("remotes")
+remotes::install_github("laderast/xvhelper")
+```
+
+If we haven't already, we can use `install_dxpy()` to install the dx-toolkit into our reticulate environment (usually `r-reticulate`).
+
+```{r}
+library(xvhelper)
+library(readr)
+install_dxpy()
+```
+
+```{r}
+datasets <- find_all_datasets()
+datasets
+```
+
+If you look at the names in the table above, you'll see that the dataset name follows the following convention:
+
+`{application_id}_{date_dispensed}.dataset`
+
+We will use the latest dataset, which is the top row. We can also find this by using `find_dataset_id`, which will give us the last dataset dispensed:
+
+```{r}
+ds_id <- find_dataset_id()
+ds_id
+```
+
+Now we have our project/dataset id, we can use it to grab metadata. We can use `list_fields()` to list the current fields in our dataset.
+
+```{r}
+field_frame <- list_fields(ds_id)
+head(field_frame)
+```
+
+We can filter our data fields. 
+
+```{r}
+field_list <- field_frame$field_id[1:5]
+
+field_list
+extract_data(ds_id, field_list)
+```
+
+Let's read in the data file in. 
+
+```{r}
+#| message: false
+
+data <- read_csv("app46926_20230513090730.dataset.data.csv")
+head(data)
+```
+
+```{r}
+get_dictionaries(ds_id)
+```
+
+```{r}
+codings <- readr::read_csv("app46926_20230513090730.dataset.codings.csv")
+head(codings)
+```
+
+```{r}
+data_dict <- readr::read_csv("app46926_20230513090730.dataset.data_dictionary.csv")
+head(data_dict)
+```
+
+```{r}
+code_data <- merge_coding_data_dict(coding_dict = codings, data_dict = data_dict)
+head(code_data)
+```
+
+## Reading in Cohort Information
+
+Working with cohorts is very similar to working with the entire dataset. Let's list the cohorts in our project:
+
+```{r}
+cohorts <- find_all_cohorts()
+```
+
