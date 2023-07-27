@@ -157,6 +157,14 @@ find_all_cohorts <- function(){
 
 }
 
+#' Title
+#'
+#' @param dataset_id - ID of the dataset, in `project-XXXX:record-YYYY` format
+#'
+#' @return
+#' @export
+#'
+#' @examples
 list_fields <- function(dataset_id=NULL) {
   dxpy <- check_env()
   if(is.null(dataset_id)){
