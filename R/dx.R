@@ -5,16 +5,16 @@
 #'
 #' @examples
 install_dxpy <- function(method="auto", conda="auto") {
-  #env_name <- env_name()
+  env_name <- env_name()
 
-  #if(!reticulate::virtualenv_exists(env_name)){
-  #  reticulate::virtualenv_create(env_name)
-  #}
+  if(!reticulate::virtualenv_exists(env_name)){
+    reticulate::virtualenv_create(env_name)
+  }
 
-  reticulate::py_install(packages=c("dxpy", "pandas"), method=method, auto=auto)
-  #reticulate::virtualenv_install(env_name, packages = c("dxpy", "pandas"))
+  #reticulate::py_install(packages=c("dxpy", "pandas"), method=method, auto=auto)
+  reticulate::virtualenv_install(env_name, packages = c("dxpy", "pandas"))
   cli::cli_alert_success("dxpy is now installed")
-  #cli::cli_alert_success("use reticulate::use_virtualenv('{env_name}') to use")
+  cli::cli_alert_success("use reticulate::use_virtualenv('{env_name}') to use")
 
 }
 
@@ -108,7 +108,7 @@ find_all_datasets <- function() {
                           project=desc_obj$project)
       out_frame}
 
-  out_list <- iterate(iter_py, extract_fun)
+  out_list <- reticulate::iterate(iter_py, extract_fun)
 
   out_frame <- purrr::reduce(out_list, rbind)
 
