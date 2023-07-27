@@ -4,7 +4,7 @@
 \alias{extract_data}
 \title{Given a dataset id and list of fields, extract data}
 \usage{
-extract_data(dataset_id, field_list, return_eids = TRUE)
+extract_data(dataset_id, field_list)
 }
 \arguments{
 \item{dataset_id}{\itemize{

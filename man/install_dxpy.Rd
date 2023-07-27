@@ -4,7 +4,7 @@
 \alias{install_dxpy}
 \title{Installs the dx-toolkit into a virtualenv}
 \usage{
-install_dxpy()
+install_dxpy(method = "auto", conda = "auto")
 }
 \value{
 no-value
