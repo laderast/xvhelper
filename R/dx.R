@@ -7,14 +7,14 @@
 install_dxpy <- function(method="auto", conda="auto") {
   env_name <- env_name()
 
-  if(!reticulate::virtualenv_exists(env_name)){
-    reticulate::virtualenv_create(env_name)
-  }
+#  if(!reticulate::virtualenv_exists(env_name)){
+#    reticulate::virtualenv_create(env_name)
+#  }
 
-  #reticulate::py_install(packages=c("dxpy", "pandas"), method=method, auto=auto)
-  reticulate::virtualenv_install(env_name, packages = c("dxpy", "pandas"))
+  reticulate::py_install(packages=c("dxpy", "pandas"), method=method, auto=auto)
+  #reticulate::virtualenv_install(env_name, packages = c("dxpy", "pandas"))
   cli::cli_alert_success("dxpy is now installed")
-  cli::cli_alert_success("use reticulate::use_virtualenv('{env_name}') to use")
+  #cli::cli_alert_success("use reticulate::use_virtualenv('{env_name}') to use")
 
 }
 
@@ -51,6 +51,7 @@ extract_data <- function(dataset_id, field_list) {
             "--fields", glue::glue("{field_list_format}"),
             "-o", file_out)
 
+  cli::cli_alert("running dx extract_dataset {dataset_id} --fields {field_list_format} -o {file_out}")
   sys::exec_wait(cmd=cmd, args=args)
   curr_dir <- getwd()
   cli::cli_alert_success("data is now extracted to {curr_dir}/{file_out}")
@@ -123,8 +124,10 @@ find_all_datasets <- function() {
 }
 
 find_linked_dataset <- function(cohort_id){
+
   dxpy <- check_env()
-  out <- dxpy$describe(cohort_id)
+  obj_id <- strsplit(cohort_id, ":")[[1]][2]
+  out <- dxpy$describe(obj_id)
   links <- out$links
   obj_id <- links[stringr::str_detect(links, "record")]
   proj_id <- out$project
@@ -133,6 +136,12 @@ find_linked_dataset <- function(cohort_id){
   return(ds_id)
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 find_all_cohorts <- function(){
   dxpy <- check_env()
 
@@ -147,11 +156,12 @@ find_all_cohorts <- function(){
                           project=desc_obj$project)
   out_frame}
 
-  out_list <- iterate(iter_py, extract_fun)
+  out_list <- reticulate::iterate(iter_py, extract_fun)
   out_frame <- purrr::reduce(out_list, rbind)
   out_frame <- out_frame |>
     dplyr::arrange(desc(name)) |>
-    dplyr::mutate(project_record = glue::glue("{project}:{id}"))
+    dplyr::mutate(project_record = glue::glue("{project}:{id}")) |>
+    dplyr::mutate(dataset = find_linked_dataset(project_record))
 
   out_frame
 
@@ -162,11 +172,11 @@ find_all_cohorts <- function(){
 #' @param dataset_id - ID of the dataset, in `project-XXXX:record-YYYY` format
 #'
 #' @return
-#' @export
 #'
 #' @examples
 list_fields <- function(dataset_id=NULL) {
   dxpy <- check_env()
+
   if(is.null(dataset_id)){
     dataset_id = find_dataset_id()
   }
@@ -174,9 +184,13 @@ list_fields <- function(dataset_id=NULL) {
   tmp <- tempfile()
 
   cmd <- "dx"
-  cmdargs <-c("extract_dataset",
+  cmdargs <-c(
+            "extract_dataset",
               glue::glue("{dataset_id}"),
-              "--list-fields")
+            "--list-fields",
+              "-o {tmp}"
+
+)
 
   cli::cli_alert("Retrieving Fields")
 
@@ -188,11 +202,61 @@ list_fields <- function(dataset_id=NULL) {
 }
 
 get_name_from_full_id <- function(id){
-  obj_id <- strsplit(id, ":")[[1]][2]
-  ds_name <- dxpy$describe(obj_id)
+  dxpy <- check_env()
+
+  if(stringr::str_detect(id, ":")){
+    id <- strsplit(id, ":")[[1]][2]
+  }
+
+  ds_name <- dxpy$describe(id)
   ds_name$name
 }
 
+#' Title
+#'
+#' @param ds_id
+#' @param path
+#'
+#' @return
+#' @export
+#'
+#' @examples
+get_coding_table <- function(ds_id, path="."){
+  app_name <- get_name_from_full_id(ds_id)
+
+  if(length(app_name)==0){
+    cli_abort("Check whether {ds_id} is a dataset")
+  }
+
+  file_list <- list.files(path = path,pattern = app_name, recursive = TRUE)
+
+  if(length(file_list) == 0){
+    cli::cli_abort("No data/coding/entity dictionaries named {app_name}")
+  }
+
+  data_dict_path <- list.files(path=path,
+                               pattern=glue::glue("{app_name}.data_dictionary.csv"),
+                               recursive = TRUE, full.names = TRUE)
+  coding_dict_path <- list.files(path=path,
+                                 pattern=glue::glue("{app_name}.codings.csv"),
+                                 recursive = TRUE, full.names = TRUE)
+
+  dd <- readr::read_csv(data_dict_path, show_col_types = FALSE)
+  cd <- readr::read_csv(coding_dict_path, show_col_types = FALSE)
+
+  cd_dict <- merge_coding_data_dict(cd, dd)
+
+  cd_dict
+}
+
+#' Title
+#'
+#' @param dataset_id
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_dictionaries <- function(dataset_id=NULL){
   dxpy <- check_env()
   if(is.null(dataset_id)){

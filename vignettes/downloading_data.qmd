@@ -3,11 +3,16 @@ title: "Downloading Dataset and Cohort Data"
 format: html
 ---
 
+```{bash}
+dx select project-GY19Qz00Yq34kBPz8jj0XKg0
+```
+
 ## Running Code
 
 When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
 ```{r}
+#| eval: false
 install.packages("remotes")
 remotes::install_github("laderast/xvhelper")
 ```
@@ -17,7 +22,7 @@ If we haven't already, we can use `install_dxpy()` to install the dx-toolkit int
 ```{r}
 library(xvhelper)
 library(readr)
-install_dxpy()
+#install_dxpy()
 ```
 
 ```{r}
@@ -36,20 +41,24 @@ ds_id <- find_dataset_id()
 ds_id
 ```
 
-Now we have our project/dataset id, we can use it to grab metadata. We can use `list_fields()` to list the current fields in our dataset.
+Now we have our project/dataset id, we can use it to grab metadata. We'l first fetch
 
 ```{r}
-field_frame <- list_fields(ds_id)
-head(field_frame)
+get_dictionaries(ds_id)
 ```
 
-We can filter our data fields. 
+```{r}
+#explore_field_list(ds_id)
+```
 
 ```{r}
-field_list <- field_frame$field_id[1:5]
+fields <- c("participant.eid", "participant.p31", "participant.p41202")
+extract_data(ds_id, fields)
+```
 
-field_list
-extract_data(ds_id, field_list)
+```{r}
+codings <- get_coding_table(ds_id)
+head(codings)
 ```
 
 Let's read in the data file in. 
@@ -57,27 +66,17 @@ Let's read in the data file in.
 ```{r}
 #| message: false
 
-data <- read_csv("app46926_20230513090730.dataset.data.csv")
+data <- readr::read_csv("apollo_ukbrap_synth_pheno_geno_100k.data.csv", show_col_types = FALSE)
 head(data)
 ```
 
 ```{r}
-get_dictionaries(ds_id)
-```
-
-```{r}
-codings <- readr::read_csv("app46926_20230513090730.dataset.codings.csv")
-head(codings)
-```
-
-```{r}
-data_dict <- readr::read_csv("app46926_20230513090730.dataset.data_dictionary.csv")
-head(data_dict)
-```
-
-```{r}
-code_data <- merge_coding_data_dict(coding_dict = codings, data_dict = data_dict)
-head(code_data)
+data[1:50,] |>
+  decode_single(codings) |>
+  decode_multi_large_df(codings, df_size = 10) |>
+  decode_column_names(codings) |>
+  head() |>
+  knitr::kable()
 ```
 
 ## Reading in Cohort Information
@@ -86,5 +85,24 @@ Working with cohorts is very similar to working with the entire dataset. Let's l
 
 ```{r}
 cohorts <- find_all_cohorts()
+cohorts
 ```
 
+```{r}
+fields <- c("participant.eid", "participant.p31", "participant.p41202")
+cohort_id <- cohorts$project_record[1]
+extract_data(cohort_id, fields)
+```
+```{r}
+cohort1 <- readr::read_csv("female_control_3.0.data.csv")
+knitr::kable(cohort1[1:10,])
+```
+
+We can decode our cohort in the same way:
+
+```{r}
+cohort1[1:10,] |>
+  decode_single(codings) |>
+  decode_multi_purrr(codings) |>
+  decode_column_names(codings)
+```
