@@ -61,7 +61,8 @@ check_env <- function(){
   if(!reticulate::py_module_available("dxpy")){
     cli::cli_abort("install dxpy using install_dxpy() first")
   }
-  return(TRUE)
+  dxpy <- reticulate::import("dxpy")
+  return(dxpy)
 }
 
 #' Finds the current dataset id in the project
@@ -71,7 +72,7 @@ check_env <- function(){
 #'
 #' @examples
 find_dataset_id <- function(){
-  env_name <- check_env()
+  dxpy <- check_env()
 
   dispensed_dataset <- dxpy$find_one_data_object(
     typename='Dataset',
@@ -96,6 +97,8 @@ find_dataset_id <- function(){
 #'
 #' @examples
 find_all_datasets <- function() {
+  dxpy <- check_env()
+
   iter_py <- dxpy$find_data_objects(
     typename = "Dataset",
     folder="/",name_mode="glob",
@@ -122,6 +125,7 @@ find_all_datasets <- function() {
 }
 
 find_linked_dataset <- function(cohort_id){
+  dxpy <- check_env()
   out <- dxpy$describe(cohort_id)
   links <- out$links
   obj_id <- links[stringr::str_detect(links, "record")]
@@ -132,6 +136,7 @@ find_linked_dataset <- function(cohort_id){
 }
 
 find_all_cohorts <- function(){
+  dxpy <- check_env()
 
   iter_py <- dxpy$find_data_objects(
     typename = "DatabaseQuery",
@@ -155,7 +160,7 @@ find_all_cohorts <- function(){
 }
 
 list_fields <- function(dataset_id=NULL) {
-  env_name <- check_env()
+  dxpy <- check_env()
   if(is.null(dataset_id)){
     dataset_id = find_dataset_id()
   }
@@ -183,7 +188,7 @@ get_name_from_full_id <- function(id){
 }
 
 get_dictionaries <- function(dataset_id=NULL){
-  env_name <- check_env()
+  dxpy <- check_env()
   if(is.null(dataset_id)){
     dataset_id = find_dataset_id()
   }
