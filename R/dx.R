@@ -76,9 +76,7 @@ find_dataset_id <- function(){
 
   dispensed_dataset <- dxpy$find_one_data_object(
     typename='Dataset',
-    name='app*.dataset',
     folder='/',
-    name_mode='glob',
     describe=TRUE)
 
   project <- dispensed_dataset$describe$project
