@@ -98,7 +98,6 @@ find_dataset_id <- function(){
 find_all_datasets <- function() {
   iter_py <- dxpy$find_data_objects(
     typename = "Dataset",
-    name="*.dataset",
     folder="/",name_mode="glob",
     recurse = TRUE,
     describe = TRUE)
