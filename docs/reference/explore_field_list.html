@@ -33,6 +33,9 @@ in a Jupyter Notebook or RMarkdown/Quarto Document"><!-- mathjax --><script src=
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab</a>
+    </li>
+    <li>
       <a href="../articles/decode_apollo_datasets.html">Decoding Apollo Datasets with xvhelper</a>
     </li>
   </ul></li>
@@ -62,13 +65,15 @@ in a Jupyter Notebook or RMarkdown/Quarto Document</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">explore_field_list</span><span class="op">(</span><span class="va">dict</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">explore_field_list</span><span class="op">(</span><span class="va">ds_id</span>, path <span class="op">=</span> <span class="st">"."</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>dict</dt>
-<dd></dd>
+    <dl><dt>coding_data_dict</dt>
+<dd><ul><li><p>a coding/data dictionary created by merge_coding_data_dict or
+by build_data_dict()</p></li>
+</ul></dd>
 
 </dl></div>
     <div id="value">

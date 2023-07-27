@@ -32,6 +32,9 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab</a>
+    </li>
+    <li>
       <a href="../articles/decode_apollo_datasets.html">Decoding Apollo Datasets with xvhelper</a>
     </li>
   </ul></li>
@@ -65,14 +68,8 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>cohort</dt>
-<dd><ul><li><p>data frame from <code>dx extract_dataset</code> or from sparkSQL query</p></li>
-</ul></dd>
-
-
-<dt>coding</dt>
-<dd><ul><li><p>coding/data dictionary merged with <code><a href="merge_coding_data_dict.html">merge_coding_data_dict()</a></code></p></li>
-</ul></dd>
+    <dl><dt>coding</dt>
+<dd></dd>
 
 </dl></div>
     <div id="value">
@@ -97,7 +94,7 @@ smaller ones for decoding.</p>
 <span class="r-in"><span><span class="va">cdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="merge_coding_data_dict.html">merge_coding_data_dict</a></span><span class="op">(</span><span class="va">coding_dict</span>, <span class="va">data_dict</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cohort</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">decode_multi_purrr</span><span class="op">(</span><span class="va">cdata</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="decode_multi.html">decode_multi</a></span><span class="op">(</span><span class="va">cdata</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 100 × 18</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    participant.p21022 participant.p100240_i0 participant.p100240_i1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
