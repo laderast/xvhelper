@@ -1,5 +1,5 @@
 ---
-title: "Downloading Pheno Data in JupyterLab"
+title: "Downloading Pheno Data in JupyterLab/RStudio"
 ---
 
 ```{bash}
@@ -8,6 +8,8 @@ dx select project-GY19Qz00Yq34kBPz8jj0XKg0
 ```
 
 ## Using `xvhelper` to download and decode pheno datasets
+
+> See the [Jupyter Notebook version here](https://github.com/laderast/xvhelper/blob/master/vignettes/articles/downloading-pheno-data.ipynb)
 
 If we are running JupyterLab or RStudio on the RAP/DNAnexus platform, we can use `xvhelper` to automate our downloading and decoding of the Pheno Data.
 
