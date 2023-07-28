@@ -5,7 +5,7 @@
 #'
 #' @examples
 install_dxpy <- function(method="auto", conda="auto") {
-  env_name <- env_name()
+  #env_name <- env_name()
 
 #  if(!reticulate::virtualenv_exists(env_name)){
 #    reticulate::virtualenv_create(env_name)
@@ -126,7 +126,10 @@ find_all_datasets <- function() {
 find_linked_dataset <- function(cohort_id){
 
   dxpy <- check_env()
-  obj_id <- strsplit(cohort_id, ":")[[1]][2]
+  if(stringr::str_detect(cohort_id, ":")){
+    cohort_id <- strsplit(cohort_id, ":")[[1]][2]
+  }
+
   out <- dxpy$describe(obj_id)
   links <- out$links
   obj_id <- links[stringr::str_detect(links, "record")]
@@ -136,9 +139,11 @@ find_linked_dataset <- function(cohort_id){
   return(ds_id)
 }
 
-#' Title
+#' Finds all cohorts and their ids in the current project
 #'
-#' @return
+#' @return `data.frame` listing all cohorts in the project.
+#' Cohort ID, name, project_id, project_record ID, and the
+#' linked dataset ID is returned
 #' @export
 #'
 #' @examples
@@ -167,7 +172,7 @@ find_all_cohorts <- function(){
 
 }
 
-#' Title
+#' List fields
 #'
 #' @param dataset_id - ID of the dataset, in `project-XXXX:record-YYYY` format
 #'
@@ -187,12 +192,11 @@ list_fields <- function(dataset_id=NULL) {
   cmdargs <-c(
             "extract_dataset",
               glue::glue("{dataset_id}"),
-            "--list-fields",
-              "-o {tmp}"
-
-)
+            "--list-fields"
+            )
 
   cli::cli_alert("Retrieving Fields")
+  cli::cli_alert("running `dx extract_dataset {dataset_id} --list-fields`")
 
   sys::exec_wait(cmd, args = cmdargs, std_out = tmp)
 
@@ -271,6 +275,7 @@ get_dictionaries <- function(dataset_id=NULL){
               glue::glue("{dataset_id}"),
               "--dump-dataset-dictionary")
 
+  cli::cli_alert("running dx extract_dataset {dataset_id} --dump-dataset-dictionary")
   sys::exec_wait(cmd, args = cmdargs, std_out = tmp)
 
   curr_dir <- getwd()

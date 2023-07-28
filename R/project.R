@@ -233,71 +233,6 @@ decode_single_db <- function(cohort, coding){
   cohort
 }
 
-#' Decodes Multi Category variables
-#'
-#' @param cohort
-#' @param coding
-#'
-#' @return Labeled data frame where multi category columns are decoded
-#' @export
-#'
-#' @examples
-#' data(coding_dict)
-#' data(cohort)
-#' data(data_dict)
-#'
-#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
-#'
-#' cohort |>
-#'   decode_multi(cdata)
-#'
-decode_multi <- function(cohort, coding){
-  coding_table <- build_coding_table(coding) |>
-    dplyr::filter(ent_field %in% colnames(cohort))
-
-  col_class <- lapply(cohort, class)
-  list_cols <- names(col_class[col_class == "list"])
-
-  #if column is a list-column, paste values together as comma delimited string
-  list_columns <- cohort |>
-    dplyr::select(dplyr::any_of(list_cols)) |>
-    dplyr::rowwise() |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), \(x) paste(x, collapse = ",")))
-
-  list_columns <- list_columns[,list_cols]
-  cohort[,list_cols] <- list_columns
-
-  multi_columns <- coding_table |>
-    dplyr::filter(is_multi_select == "yes") |>
-    dplyr::filter(ent_field %in% colnames(cohort)) |>
-    dplyr::pull(ent_field)
-
-  multi_cols <- cohort |>
-    dplyr::select(dplyr::any_of(multi_columns))
-
-  multi_cols <- multi_cols |>
-    #dplyr::select({{multi_column}}) |>
-    dplyr::mutate(rown=dplyr::row_number()) |>
-    tidyr::pivot_longer(-rown, names_to="col", values_to="code") |>
-    dplyr::mutate(code :=
-                    stringr::str_replace_all(code, '\\[|\\]|\\"', "")) |>
-    #separate commaa delimited string in multicolumn to multiple rows
-    tidyr::separate_rows(code, sep = ",") |>
-    #join to coding file
-    dplyr::left_join(y=coding, by=c("code"="code", "col"="ent_field")) |>
-    dplyr::select(rown, col, meaning) |>
-    dplyr::group_by(rown, col) |>
-    dplyr::summarize(code := paste(meaning, collapse="|")) |>
-    tidyr::pivot_wider(id_cols = "rown", names_from = "col", values_from = "code") |>
-    dplyr::ungroup() |>
-    dplyr::select(-rown)
-
-  multi_cols <- multi_cols[, multi_columns]
-
-  cohort[,multi_columns] <- multi_cols
-
-  cohort
-}
 
 
 #' Decodes Multi Category variables
@@ -305,7 +240,7 @@ decode_multi <- function(cohort, coding){
 #' For a smaller data frame, decodes the columns that have a list of values.
 #'
 #' For a larger data frame, such as from UK Biobank, we recommend you use
-#' \seealso{decode_multi_large_df}, which will split your data frame into
+#' `decode_multi_large_df()`, which will split your data frame into
 #' smaller ones for decoding.
 #'
 #' @param cohort
@@ -322,7 +257,7 @@ decode_multi <- function(cohort, coding){
 #' cdata <- merge_coding_data_dict(coding_dict, data_dict)
 #'
 #' cohort |>
-#'   decode_multi(cdata)
+#'   decode_multi_purrr(cdata)
 #'
 decode_multi_purrr <- function(cohort, coding){
   coding_table <- build_coding_table(coding) #|>
@@ -397,6 +332,26 @@ decode_multi_purrr <- function(cohort, coding){
   cohort
 }
 
+#' Decodes Multi Category variables
+#'
+#' @param cohort
+#' @param coding
+#'
+#' @return Labeled data frame where multi category columns are decoded
+#' @export
+#'
+#' @examples
+#' data(coding_dict)
+#' data(cohort)
+#' data(data_dict)
+#'
+#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'
+#' cohort |>
+#'   decode_multi(cdata)
+#'
+decode_multi <- decode_multi_purrr
+
 
 strip_quotes_and_brackets <- function(df, colname) {
   {{colname}} := stringr::str_replace_all({{colname}}, '\\[|\\]|\\"', "")
@@ -424,92 +379,7 @@ detect_list <- function(df){
 }
 
 
-#' Decodes Multi Category variables
-#'
-#' For a smaller data frame, decodes the columns that have a list of values.
-#'
-#' @param cohort
-#' @param coding
-#'
-#' @return Labeled data frame where multi category columns are decoded
-#'
-#' @examples
-#' data(coding_dict)
-#' data(cohort)
-#' data(data_dict)
-#'
-#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
-#'
-#' cohort |>
-#'   decode_multi(cdata)
-#'
-decode_multi_db <- function(cohort, coding){
-  coding_table <- build_coding_table(coding) |>
-    dplyr::filter(ent_field %in% colnames(cohort))
 
-  coding <- coding |> dplyr::filter(ent_field %in% colnames(cohort)) |>
-    dplyr::select(-name)
-
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir="tablesduckdb", read_only=FALSE)
-  duckdb::duckdb_register(con, "coding", coding)
-  coding_db <- dplyr::tbl(con, "coding")
-
-  col_class <- lapply(cohort, class)
-  list_cols <- names(col_class[col_class == "list"])
-
-  #if column is a list-column, paste values together as comma delimited string
-  list_columns <- cohort |>
-    dplyr::select(dplyr::any_of(list_cols)) |>
-    dplyr::rowwise() |>
-    #dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), paste, collapse=","))
-    dplyr::mutate(dplyr::across(dplyr::any_of(list_cols), \(x) paste(x, collapse=",")))
-
-  list_columns <- list_columns[,list_cols]
-  cohort[,list_cols] <- list_columns
-
-  multi_columns <- coding_table |>
-    dplyr::filter(is_multi_select == "yes") |>
-    dplyr::filter(ent_field %in% colnames(cohort)) |>
-    dplyr::pull(ent_field)
-
-  multi_cols <- cohort |>
-    dplyr::select(dplyr::any_of(multi_columns))
-
-  multi_cols <- multi_cols |>
-    #dplyr::select({{multi_column}}) |>
-    dplyr::mutate(rown=dplyr::row_number()) |>
-    tidyr::pivot_longer(-rown, names_to="col", values_to="code") |>
-    dplyr::mutate(code :=
-                    stringr::str_replace_all(code, '\\[|\\]|\\"', "")) |>
-    #separate commaa delimited string in multicolumn to multiple rows
-    tidyr::separate_rows(code, sep = ",")
-
-  duckdb::duckdb_register(con, "multicol", multi_cols)
-  multi_cols_db <- dplyr::tbl(con, "multicol")
-
-  multi_cols <-
-  multi_cols_db |>
-    #join to coding file
-    dplyr::left_join(y=coding_db, by=c("code"="code", "col"="ent_field")) |>
-    dplyr::select(rown, col, meaning) |>
-    tibble::as_tibble()
-
-  multi_cols <-
-    multi_cols |>
-    dplyr::group_by(rown, col) |>
-    dplyr::summarize(code := paste(meaning, collapse="|")) |>
-    tidyr::pivot_wider(id_cols = "rown", names_from = "col", values_from = "code") |>
-    dplyr::ungroup() |>
-    dplyr::select(-rown)
-
-  multi_cols <- multi_cols[, multi_columns]
-
-  cohort[,multi_columns] <- multi_cols
-
-  DBI::dbDisconnect(con, shutdown=TRUE)
-
-  cohort
-}
 
 
 #' Main Function to Decode Fields from Codings

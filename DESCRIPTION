@@ -1,5 +1,5 @@
 Package: xvhelper
-Title: An R package to help with interacting with Apollo Datasets on the DNAnexus platform
+Title: An R package to help with interacting with Apollo Pheno Datasets on the DNAnexus platform
 Version: 0.0.100
 Authors@R: 
     person("Ted", "Laderas", , "tladeras@dnanexus.com", role = c("aut", "cre"),

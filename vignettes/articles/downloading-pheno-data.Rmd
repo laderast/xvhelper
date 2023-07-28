@@ -1,0 +1,117 @@
+---
+title: "Downloading Pheno Data in JupyterLab"
+---
+
+```{bash}
+#| include: false
+dx select project-GY19Qz00Yq34kBPz8jj0XKg0
+```
+
+## Using `xvhelper` to download and decode pheno datasets
+
+If we are running JupyterLab or RStudio on the RAP/DNAnexus platform, we can use `xvhelper` to automate our downloading and decoding of the Pheno Data.
+
+If we haven't already, we can use `install_dxpy()` to install the dx-toolkit into our `reticulate` environment (usually `r-reticulate`).
+
+```{r}
+library(xvhelper)
+library(readr)
+install_dxpy()
+```
+
+## Start with the Datasets
+
+We can first use `find_all_datasets()` to return a `data.frame` of all datasets available in our project.
+
+```{r}
+datasets <- find_all_datasets()
+datasets
+```
+
+If you look at the names in the table above, you'll see that the dataset name follows the following convention:
+
+`{application_id}_{date_dispensed}.dataset`
+
+We will use the latest dataset, which is the top row (well, there is only one dataset in our project, but if you do multiple dispensals in your project you will have multiple datasets). We can also find this by using `find_dataset_id`, which will give us the last dataset dispensed:
+
+```{r}
+ds_id <- find_dataset_id()
+ds_id
+```
+
+Now we have our project/dataset id, we can use it to grab metadata. We'l first fetch the dictionaries for our particular dataset.
+
+```{r}
+get_dictionaries(ds_id)
+```
+
+Now that we have the dictionary files into our JupyterLab/RStudio storage, we can extract the coding/data dictionary, which we'll use in our decoding.
+
+```{r}
+codings <- get_coding_table(ds_id)
+head(codings)
+```
+
+In the next step, we'll need a list of fields
+
+```{r}
+explore_field_list(ds_id)
+```
+
+## Extracting Data
+
+Now that we have the dataset id, we can extract the data into our RStudio Project. By default, `extract_data()` will save the data as a file into our current working directory.
+
+```{r}
+fields <- c("participant.eid", "participant.p31", "participant.p41202")
+extract_data(ds_id, fields)
+```
+
+
+Let's read in the data file in. 
+
+```{r}
+#| message: false
+
+data <- readr::read_csv("apollo_ukbrap_synth_pheno_geno_100k.data.csv", show_col_types = FALSE)
+head(data)
+```
+
+```{r}
+data[1:50,] |>
+  decode_single(codings) |>
+  decode_multi_purrr(codings) |>
+  decode_column_names(codings) |>
+  head() |>
+  knitr::kable()
+```
+
+## Reading in Cohort Information
+
+Working with cohorts is very similar to working with the entire dataset. Let's list the cohorts in our project:
+
+```{r}
+cohorts <- find_all_cohorts()
+cohorts
+```
+
+Once we have the cohort `record` IDs, we can use `extract_data()` to extract the cohorts to our project.
+
+```{r}
+fields <- c("participant.eid", "participant.p31", "participant.p41202")
+cohort_id <- cohorts$project_record[1]
+extract_data(cohort_id, fields)
+```
+```{r}
+cohort1 <- readr::read_csv("female_control_3.0.data.csv")
+knitr::kable(cohort1[1:10,])
+```
+
+We can decode our cohort in the same way:
+
+```{r}
+cohort1[1:10,] |>
+  decode_single(codings) |>
+  decode_multi_purrr(codings) |>
+  decode_column_names(codings)
+```

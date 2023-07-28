@@ -17,7 +17,7 @@ For a smaller data frame, decodes the columns that have a list of values.
 }
 \details{
 For a larger data frame, such as from UK Biobank, we recommend you use
-\seealso{decode_multi_large_df}, which will split your data frame into
+\code{decode_multi_large_df()}, which will split your data frame into
 smaller ones for decoding.
 }
 \examples{
@@ -28,6 +28,6 @@ data(data_dict)
 cdata <- merge_coding_data_dict(coding_dict, data_dict)
 
 cohort |>
-  decode_multi(cdata)
+  decode_multi_purrr(cdata)
 
 }

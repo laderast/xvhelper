@@ -2,10 +2,15 @@
 % Please edit documentation in R/dx.R
 \name{find_all_cohorts}
 \alias{find_all_cohorts}
-\title{Title}
+\title{Finds all cohorts and their ids in the current project}
 \usage{
 find_all_cohorts()
 }
+\value{
+\code{data.frame} listing all cohorts in the project.
+Cohort ID, name, project_id, project_record ID, and the
+linked dataset ID is returned
+}
 \description{
-Title
+Finds all cohorts and their ids in the current project
 }
