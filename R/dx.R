@@ -165,8 +165,8 @@ find_all_cohorts <- function(){
   out_frame <- purrr::reduce(out_list, rbind)
   out_frame <- out_frame |>
     dplyr::arrange(desc(name)) |>
-    dplyr::mutate(project_record = glue::glue("{project}:{id}")) |>
-    dplyr::mutate(dataset = find_linked_dataset(project_record))
+    dplyr::mutate(project_record = glue::glue("{project}:{id}")) #|>
+    #dplyr::mutate(dataset = find_linked_dataset(project_record))
 
   out_frame
 

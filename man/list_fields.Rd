@@ -2,7 +2,7 @@
 % Please edit documentation in R/dx.R
 \name{list_fields}
 \alias{list_fields}
-\title{Title}
+\title{List fields}
 \usage{
 list_fields(dataset_id = NULL)
 }
@@ -12,5 +12,5 @@ list_fields(dataset_id = NULL)
 }}
 }
 \description{
-Title
+List fields
 }
