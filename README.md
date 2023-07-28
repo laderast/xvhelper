@@ -10,9 +10,9 @@ Note: this package was recently named `dxhelper`. It has been renamed to
 `xvhelper` to reflect that it is not software that is released by
 DNAnexus product.
 
-The goal of xvhelper is to provide an tidy interface to decoding raw
-values from exported Apollo datasets, whether they are exported from
-`dx extract_dataset` or through a SparkSQL query.
+The goal of xvhelper is to provide an tidy interface to extracting and
+decoding raw values from exported Apollo datasets, whether they are
+exported from `dx extract_dataset` or through a SparkSQL query.
 
 Given the data dictionary and the codings files, it will decode the
 categorical values from the raw data.
@@ -397,10 +397,12 @@ knitr::kable(head(from_db))
 | sample_100_304  |                 67 | Ground coffee (include espresso, filter etc) | NA                   | NA                   | I87.1 Compression of vein\|I87 Other disorders of veins\|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified\|Chapter IX Diseases of the circulatory system                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Female          | NA                 | NA                   | NA                   | NA                   |
 | sample_100_328  |                 61 | Decaffeinated coffee (any type)              | NA                   | NA                   | K01.1 Impacted teeth\|K01 Embedded and impacted teeth\|K00-K14 Diseases of oral cavity, salivary glands and jaws\|Chapter XI Diseases of the digestive system                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Female          | NA                 | NA                   | NA                   | NA                   |
 
-## New (7/28/23) Extract data using dx-toolkit
+## New (7/28/23) Extract data using `dx-toolkit`
 
 `xvhelper` now contains a number of functions that help you extract and
-download pheno data using the `dx-toolkit` from your project.
+download pheno data using the `dx-toolkit` from your project. It does
+this by using `reticulate` to call the python `dxpy` package and using
+system calls to `dx extract_dataset`.
 
 These functions are designed to work within RStudio (on UKB RAP) or
 JupyterLab (on DNAnexus/UKB RAP).
