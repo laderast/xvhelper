@@ -410,3 +410,13 @@ JupyterLab (on DNAnexus/UKB RAP).
 [See the
 article](https://laderast.github.io/xvhelper/articles/downloading-pheno-data.html)
 for more info.
+
+## Caveats/Limitations
+
+`extract_data()` is based on `dx extract_dataset` from the `dx-toolkit`.
+There are some limitations with queries, since it uses a shared resource
+called the Thrift server to extract data. You may get an error if you
+try to extract more than ~15 fields at once.
+
+I am working on functions that run `Table Exporter` for much larger sets
+of fields.
