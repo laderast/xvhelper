@@ -20,12 +20,13 @@ This function leverages reactable to give a searchable table of fields. It's mos
 in a Jupyter Notebook or RMarkdown/Quarto Document
 }
 \examples{
-data(coding_dict)
-data(cohort)
-data(data_dict)
+if(interactive()){
+  data(coding_dict)
+  data(cohort)
+  data(data_dict)
 
-cdata <- merge_coding_data_dict(coding_dict, data_dict)
+  cdata <- merge_coding_data_dict(coding_dict, data_dict)
 
-search_field_list(cdata)
-
+  explore_field_list(cdata)
+}
 }

@@ -12,14 +12,15 @@
 #' @export
 #'
 #' @examples
-#' data(coding_dict)
-#' data(cohort)
-#' data(data_dict)
+#' if(interactive()){
+#'   data(coding_dict)
+#'   data(cohort)
+#'   data(data_dict)
 #'
-#' cdata <- merge_coding_data_dict(coding_dict, data_dict)
+#'   cdata <- merge_coding_data_dict(coding_dict, data_dict)
 #'
-#' search_field_list(cdata)
-#'
+#'   explore_field_list(cdata)
+#' }
 explore_field_list <- function(ds_id, path=".") {
 
   app_name <- get_name_from_full_id(ds_id)
