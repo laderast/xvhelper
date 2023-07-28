@@ -2,13 +2,23 @@
 % Please edit documentation in R/dx.R
 \name{get_dictionaries}
 \alias{get_dictionaries}
-\title{Title}
+\title{Extracts the dictionary files for a dataset id into current project}
 \usage{
 get_dictionaries(dataset_id = NULL)
 }
 \arguments{
 \item{dataset_id}{}
 }
+\value{
+side effect is downloading the \code{data.dictionary.csv}, \code{codings.csv},
+and \code{entity.csv} file for the dataset.
+}
 \description{
-Title
+Extracts the dictionary files for a dataset id into current project
+}
+\examples{
+\dontrun{
+ds_id <- get_dataset_id()
+get_dictionaries(ds_id)
+}
 }

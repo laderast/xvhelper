@@ -2,13 +2,31 @@
 % Please edit documentation in R/dx.R
 \name{get_coding_table}
 \alias{get_coding_table}
-\title{Title}
+\title{Given a dataset id, builds a coding table to decode raw data}
 \usage{
 get_coding_table(ds_id, path = ".")
 }
 \arguments{
-\item{path}{}
+\item{ds_id}{\itemize{
+\item dataset id, with the format \code{project-XXXXX:record-YYYY}
+}}
+
+\item{path}{\itemize{
+\item path in current project
+}}
+}
+\value{
+data.frame of codings merged with data dictionary for dataset/
+cohort
 }
 \description{
-Title
+Given a dataset id, builds a coding table to decode raw data
+}
+\examples{
+\dontrun{
+ds_id <- find_dataset_id()
+get_dictionaries(ds_id)
+codings <- get_coding_table(ds_id)
+head(codings)
+}
 }

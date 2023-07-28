@@ -14,3 +14,9 @@ linked dataset ID is returned
 \description{
 Finds all cohorts and their ids in the current project
 }
+\examples{
+
+\dontrun{
+find_all_cohorts()
+}
+}

@@ -7,8 +7,19 @@
 install_dxpy(method = "auto", conda = "auto")
 }
 \value{
-no-value
+no-value. Side effect is that dxpy and pandas are installed
+into reticulate environment.
 }
 \description{
-Installs the dx-toolkit into a virtualenv
+Not needed for running in JupyterLab/RStudio on UKB RAP or JupyterLab on
+core platform, as the dx-toolkit is installed on these apps.
+}
+\details{
+Useful for using xvhelper on your own machine.
+}
+\examples{
+
+\dontrun{
+install_dxpy()
+}
 }

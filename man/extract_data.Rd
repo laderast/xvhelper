@@ -22,3 +22,11 @@ extract_data(dataset_id, field_list)
 \description{
 Given a dataset id and list of fields, extract data
 }
+\examples{
+
+\dontrun{
+fields <- c("participant.eid", "participant.p31", "participant.p41202")
+ds_id <- get_dataset_id()
+extract_data(ds_id, field_list=fields)
+}
+}

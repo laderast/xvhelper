@@ -1,9 +1,19 @@
 #' Installs the dx-toolkit into a virtualenv
 #'
-#' @return no-value
+#' Not needed for running in JupyterLab/RStudio on UKB RAP or JupyterLab on
+#' core platform, as the dx-toolkit is installed on these apps.
+#'
+#' Useful for using xvhelper on your own machine.
+#'
+#' @return no-value. Side effect is that dxpy and pandas are installed
+#' into reticulate environment.
 #' @export
 #'
 #' @examples
+#'
+#' \dontrun{
+#' install_dxpy()
+#' }
 install_dxpy <- function(method="auto", conda="auto") {
   #env_name <- env_name()
 
@@ -37,6 +47,12 @@ format_field_list <- function(field_list){
 #' @export
 #'
 #' @examples
+#'
+#' \dontrun{
+#' fields <- c("participant.eid", "participant.p31", "participant.p41202")
+#' ds_id <- get_dataset_id()
+#' extract_data(ds_id, field_list=fields)
+#' }
 extract_data <- function(dataset_id, field_list) {
   env_name <- check_env()
 
@@ -72,6 +88,9 @@ check_env <- function(){
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' find_dataset_id()
+#' }
 find_dataset_id <- function(){
   dxpy <- check_env()
 
@@ -91,10 +110,16 @@ find_dataset_id <- function(){
 
 #' Find all datasets in the current project
 #'
+#' Finds all datasets in current project.
+#'
 #' @return data.frame of all datasets in the project
 #' @export
 #'
 #' @examples
+#'
+#' \dontrun{
+#' find_all_datasets()
+#' }
 find_all_datasets <- function() {
   dxpy <- check_env()
 
@@ -147,6 +172,10 @@ find_linked_dataset <- function(cohort_id){
 #' @export
 #'
 #' @examples
+#'
+#' \dontrun{
+#' find_all_cohorts()
+#' }
 find_all_cohorts <- function(){
   dxpy <- check_env()
 
@@ -172,13 +201,21 @@ find_all_cohorts <- function(){
 
 }
 
-#' List fields
+#' List fields associated with dataset ID
+#'
+#' Given a dataset ID generated from get_dataset_id(), runs `dx extract_dataset`
+#' with the `--list-fields` option.
 #'
 #' @param dataset_id - ID of the dataset, in `project-XXXX:record-YYYY` format
 #'
-#' @return
+#' @return data.frame of all field IDs associated with the dataset
 #'
 #' @examples
+#'
+#' \dontrun{
+#' ds_id <- get_dataset_id()
+#' field_frame <- list_fields(ds_id)
+#' }
 list_fields <- function(dataset_id=NULL) {
   dxpy <- check_env()
 
@@ -216,15 +253,23 @@ get_name_from_full_id <- function(id){
   ds_name$name
 }
 
-#' Title
+#' Given a dataset id, builds a coding table to decode raw data
 #'
-#' @param ds_id
-#' @param path
+#' @param ds_id - dataset id, with the format `project-XXXXX:record-YYYY`
+#' @param path - path in current project
 #'
-#' @return
+#' @return data.frame of codings merged with data dictionary for dataset/
+#' cohort
+#'
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' ds_id <- find_dataset_id()
+#' get_dictionaries(ds_id)
+#' codings <- get_coding_table(ds_id)
+#' head(codings)
+#' }
 get_coding_table <- function(ds_id, path="."){
   app_name <- get_name_from_full_id(ds_id)
 
@@ -253,14 +298,19 @@ get_coding_table <- function(ds_id, path="."){
   cd_dict
 }
 
-#' Title
+#' Extracts the dictionary files for a dataset id into current project
 #'
 #' @param dataset_id
 #'
-#' @return
+#' @return side effect is downloading the `data.dictionary.csv`, `codings.csv`,
+#' and `entity.csv` file for the dataset.
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' ds_id <- get_dataset_id()
+#' get_dictionaries(ds_id)
+#' }
 get_dictionaries <- function(dataset_id=NULL){
   dxpy <- check_env()
   if(is.null(dataset_id)){

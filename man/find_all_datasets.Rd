@@ -10,5 +10,11 @@ find_all_datasets()
 data.frame of all datasets in the project
 }
 \description{
-Find all datasets in the current project
+Finds all datasets in current project.
+}
+\examples{
+
+\dontrun{
+find_all_datasets()
+}
 }

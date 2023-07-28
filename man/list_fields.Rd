@@ -2,7 +2,7 @@
 % Please edit documentation in R/dx.R
 \name{list_fields}
 \alias{list_fields}
-\title{List fields}
+\title{List fields associated with dataset ID}
 \usage{
 list_fields(dataset_id = NULL)
 }
@@ -11,6 +11,17 @@ list_fields(dataset_id = NULL)
 \item ID of the dataset, in \code{project-XXXX:record-YYYY} format
 }}
 }
+\value{
+data.frame of all field IDs associated with the dataset
+}
 \description{
-List fields
+Given a dataset ID generated from get_dataset_id(), runs \verb{dx extract_dataset}
+with the \code{--list-fields} option.
+}
+\examples{
+
+\dontrun{
+ds_id <- get_dataset_id()
+field_frame <- list_fields(ds_id)
+}
 }

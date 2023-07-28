@@ -14,3 +14,8 @@ find_dataset_id()
 \description{
 Finds the current dataset id in the project
 }
+\examples{
+\dontrun{
+find_dataset_id()
+}
+}
