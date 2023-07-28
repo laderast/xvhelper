@@ -11,12 +11,8 @@ dx select project-GY19Qz00Yq34kBPz8jj0XKg0
 
 If we are running JupyterLab or RStudio on the RAP/DNAnexus platform, we can use `xvhelper` to automate our downloading and decoding of the Pheno Data.
 
-If we haven't already, we can use `install_dxpy()` to install the dx-toolkit into our `reticulate` environment (usually `r-reticulate`).
-
 ```{r}
 library(xvhelper)
-library(readr)
-install_dxpy()
 ```
 
 ## Start with the Datasets
@@ -73,7 +69,7 @@ Let's read in the data file in.
 ```{r}
 #| message: false
 
-data <- readr::read_csv("apollo_ukbrap_synth_pheno_geno_100k.data.csv", show_col_types = FALSE)
+data <- readr::read_csv("apollo_ukrap_synth_pheno_100k.data.csv", show_col_types = FALSE)
 head(data)
 ```
 
