@@ -1033,7 +1033,7 @@
 </table>
 </div>
 <div class="section level2">
-<h2 id="new-724-incremental-decoding-of-very-large-data-frames">New (7/24) Incremental Decoding of Very Large Data Frames<a class="anchor" aria-label="anchor" href="#new-724-incremental-decoding-of-very-large-data-frames"></a>
+<h2 id="new-72423-incremental-decoding-of-very-large-data-frames">New (7/2423) Incremental Decoding of Very Large Data Frames<a class="anchor" aria-label="anchor" href="#new-72423-incremental-decoding-of-very-large-data-frames"></a>
 </h2>
 <p>One thing to note is that decoding a large dataset (for UKB Pheno data, this can be over 500K rows) takes time. The new function <code><a href="reference/decode_multi_large_df.html">decode_multi_large_df()</a></code> will split the dataset into a number of data frames, the size of which is specified by <code>df_size</code>, which is then processed one data frame at a time, with a progress bar.</p>
 <p>This is not necessarily faster, but it does give the user a sense of progress.</p>
@@ -1043,7 +1043,6 @@
 <span>  <span class="fu"><a href="reference/decode_single.html">decode_single</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/decode_multi_large_df.html">decode_multi_large_df</a></span><span class="op">(</span><span class="va">merged_code</span>, df_size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/decode_column_names.html">decode_column_names</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Processing multi columns"</span></span>
 <span></span>
 <span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">decoded_cohort</span><span class="op">)</span></span></code></pre></div>
@@ -1345,6 +1344,13 @@
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section level2">
+<h2 id="new-72823-extract-data-using-dx-toolkit">New (7/28/23) Extract data using dx-toolkit<a class="anchor" aria-label="anchor" href="#new-72823-extract-data-using-dx-toolkit"></a>
+</h2>
+<p><code>xvhelper</code> now contains a number of functions that help you extract and download pheno data using the <code>dx-toolkit</code> from your project.</p>
+<p>These functions are designed to work within RStudio (on UKB RAP) or JupyterLab (on DNAnexus/UKB RAP).</p>
+<p><a href="https://laderast.github.io/xvhelper/articles/downloading-pheno-data.html" class="external-link">See the article</a> for more info.</p>
 </div>
 </div>
   </div>

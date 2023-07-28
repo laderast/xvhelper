@@ -106,7 +106,7 @@ decode_column_names <- function(cohort, coded_col_df, r_clean_names=TRUE) {
 #' data(data_dict)
 #'
 #' cdata <- merge_coding_data_dict(coding_dict, data_dict)
-#' headh(cdata)
+#' head(cdata)
 merge_coding_data_dict <- function(coding_dict, data_dict) {
 
   coded_col_df <-
@@ -162,62 +162,6 @@ decode_single <- function(cohort, coding){
     dplyr::select(-rown)
 
   out <- out[,not_multi]
-
-  sparse_cols <- coding_table |>
-    dplyr::filter(is_sparse_coding == "yes" & is.na(coding_name)) |> dplyr::pull(ent_field)
-
-  originals <- cohort[, sparse_cols]
-
-  cohort[,not_multi] <- out
-
-  sparsed <- cohort[, sparse_cols]
-
-  cohort[, sparse_cols] <-  purrr::map2(sparsed, originals, ~(dplyr::coalesce(as.character(.x), as.character(.y))))
-
-  cohort
-}
-
-
-decode_single_db <- function(cohort, coding){
-  coding_table <- build_coding_table(coding)  |>
-    dplyr::filter(ent_field %in% colnames(cohort))
-
-  coding <- coding |> dplyr::filter(ent_field %in% colnames(cohort)) |>
-    dplyr::select(-name)
-
-  con <- DBI::dbConnect(duckdb::duckdb(), dbdir="tablesduckdb", read_only=FALSE)
-  duckdb::duckdb_register(con, "coding", coding)
-  coding_db <- dplyr::tbl(con, "coding")
-
-
-  not_multi <- coding_table |>
-    dplyr::filter(ent_field %in% colnames(cohort)) |>
-    dplyr::filter(is.na(is_multi_sparse)) |>
-    dplyr::filter(!is.na(coding_name)) |>
-    dplyr::pull(ent_field)
-
-  sparse_columns <- cohort |> dplyr::select(-any_of(not_multi))
-
-  out <- cohort |>
-    dplyr::select(any_of(not_multi)) |>
-
-    dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) |>
-    dplyr::mutate(rown=dplyr::row_number()) |>
-    tidyr::pivot_longer(-rown, names_to = "name", values_to = "code")
-
-  duckdb::duckdb_register(con, "output", out)
-
-  decoded <- dplyr::tbl(con, "output") |>
-    dplyr::left_join(y=coding_db, by = c("name"="ent_field", "code"="code")) |>
-    dplyr::select(rown, name, meaning) |> tibble::as_tibble()
-
-  out <- decoded |>
-    tidyr::pivot_wider(id_cols = rown, names_from = "name", values_from = "meaning") |>
-    dplyr::select(-rown)
-
-  out <- out[,not_multi]
-
-  DBI::dbDisconnect(con, shutdown=TRUE)
 
   sparse_cols <- coding_table |>
     dplyr::filter(is_sparse_coding == "yes" & is.na(coding_name)) |> dplyr::pull(ent_field)

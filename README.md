@@ -316,7 +316,7 @@ decoded_cohort |>
 | sample_100_384  | D12 Benign neoplasm of colon, rectum, anus and anal canal                                                                             |
 | sample_100_384  | D10-D36 Benign neoplasms                                                                                                              |
 
-## New (7/24) Incremental Decoding of Very Large Data Frames
+## New (7/2423) Incremental Decoding of Very Large Data Frames
 
 One thing to note is that decoding a large dataset (for UKB Pheno data,
 this can be over 500K rows) takes time. The new function
@@ -335,7 +335,6 @@ decoded_cohort <- mydf[1:10,] |>
   decode_single(merged_code) |>
   decode_multi_large_df(merged_code, df_size = 2) |>
   decode_column_names(merged_code)
-#> [1] "Processing multi columns"
 
 
 knitr::kable(decoded_cohort)
@@ -397,3 +396,15 @@ knitr::kable(head(from_db))
 | sample_100_290  |                 62 | Instant coffee                               | NA                   | NA                   | R07.3 Other chest pain\|R07 Pain in throat and chest\|R00-R09 Symptoms and signs involving the circulatory and respiratory systems\|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Female          | NA                 | NA                   | NA                   | NA                   |
 | sample_100_304  |                 67 | Ground coffee (include espresso, filter etc) | NA                   | NA                   | I87.1 Compression of vein\|I87 Other disorders of veins\|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified\|Chapter IX Diseases of the circulatory system                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Female          | NA                 | NA                   | NA                   | NA                   |
 | sample_100_328  |                 61 | Decaffeinated coffee (any type)              | NA                   | NA                   | K01.1 Impacted teeth\|K01 Embedded and impacted teeth\|K00-K14 Diseases of oral cavity, salivary glands and jaws\|Chapter XI Diseases of the digestive system                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Female          | NA                 | NA                   | NA                   | NA                   |
+
+## New (7/28/23) Extract data using dx-toolkit
+
+`xvhelper` now contains a number of functions that help you extract and
+download pheno data using the `dx-toolkit` from your project.
+
+These functions are designed to work within RStudio (on UKB RAP) or
+JupyterLab (on DNAnexus/UKB RAP).
+
+[See the
+article](https://laderast.github.io/xvhelper/articles/downloading-pheno-data.html)
+for more info.
