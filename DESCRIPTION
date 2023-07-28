@@ -33,5 +33,6 @@ Imports:
     tibble,
     reticulate,
     cli,
-    sys
+    sys,
+    readr
 VignetteBuilder: knitr
