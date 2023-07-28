@@ -26,7 +26,7 @@ datasets <- find_all_datasets()
 datasets
 ```
 
-If you look at the names in the table above, you'll see that the dataset name follows the following convention:
+On UKB RAP, you'll see that the dataset name follows the following convention:
 
 `{application_id}_{date_dispensed}.dataset`
 
