@@ -1346,9 +1346,10 @@
 </table>
 </div>
 <div class="section level2">
-<h2 id="new-72823-extract-data-using-dx-toolkit">New (7/28/23) Extract data using dx-toolkit<a class="anchor" aria-label="anchor" href="#new-72823-extract-data-using-dx-toolkit"></a>
+<h2 id="new-72823-extract-data-using-dx-toolkit">New (7/28/23) Extract data using <code>dx-toolkit</code>
+<a class="anchor" aria-label="anchor" href="#new-72823-extract-data-using-dx-toolkit"></a>
 </h2>
-<p><code>xvhelper</code> now contains a number of functions that help you extract and download pheno data using the <code>dx-toolkit</code> from your project.</p>
+<p><code>xvhelper</code> now contains a number of functions that help you extract and download pheno data using the <code>dx-toolkit</code> from your project. It does this by using <code>reticulate</code> to call the python <code>dxpy</code> package and using system calls to <code>dx extract_dataset</code>.</p>
 <p>These functions are designed to work within RStudio (on UKB RAP) or JupyterLab (on DNAnexus/UKB RAP).</p>
 <p><a href="https://laderast.github.io/xvhelper/articles/downloading-pheno-data.html" class="external-link">See the article</a> for more info.</p>
 </div>
@@ -1372,6 +1373,12 @@
 </ul>
 </div>
 
+<div class="community">
+<h2 data-toc-skip>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CONTRIBUTING.html">Contributing guide</a></li>
+</ul>
+</div>
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
