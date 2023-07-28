@@ -50,7 +50,7 @@ codings <- get_coding_table(ds_id)
 head(codings)
 ```
 
-In the next step, we'll need a list of fields
+In the next step, we'll need a list of fields. We can explore the list of fields as a searchable table using `explore_field_list()`:
 
 ```{r}
 explore_field_list(ds_id)
@@ -64,7 +64,6 @@ Now that we have the dataset id, we can extract the data into our RStudio Projec
 fields <- c("participant.eid", "participant.p31", "participant.p41202")
 extract_data(ds_id, fields)
 ```
-
 
 Let's read in the data file in. 
 
