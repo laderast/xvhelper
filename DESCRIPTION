@@ -3,8 +3,8 @@ Title: An R package to help with interacting with Apollo Pheno Datasets on the D
 Version: 0.0.100
 Authors@R: 
     person("Ted", "Laderas", , "tladeras@dnanexus.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: Helper package that decodes Apollo datasets from the raw values using the data dictionary and coding files.
+           comment = c(ORCID = "Y0000-0002-6207-7068"))
+Description: Helper package that extracts and decodes Apollo datasets from the raw values using the data dictionary and coding files.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
