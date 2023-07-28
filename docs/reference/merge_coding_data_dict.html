@@ -32,7 +32,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab</a>
+      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab/RStudio</a>
     </li>
     <li>
       <a href="../articles/decode_apollo_datasets.html">Decoding Apollo Datasets with xvhelper</a>
@@ -80,8 +80,17 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">data_dict</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cdata</span> <span class="op">&lt;-</span> <span class="fu">merge_coding_data_dict</span><span class="op">(</span><span class="va">coding_dict</span>, <span class="va">data_dict</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">headh</span><span class="op">(</span><span class="va">cdata</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in headh(cdata):</span> could not find function "headh"</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cdata</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   title        ent_field entity name  coding_name code  meaning is_sparse_coding</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;glue&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Coffee cons… particip… parti… p100… data_codin… 0     No      <span style="color: #BB0000;">NA</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Coffee cons… particip… parti… p100… data_codin… 1     Yes     <span style="color: #BB0000;">NA</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Coffee cons… particip… parti… p100… data_codin… 0     No      <span style="color: #BB0000;">NA</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Coffee cons… particip… parti… p100… data_codin… 1     Yes     <span style="color: #BB0000;">NA</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Sex of baby  particip… parti… p412… data_codin… 9     Not sp… <span style="color: #BB0000;">NA</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Sex of baby  particip… parti… p412… data_codin… 3     Indete… <span style="color: #BB0000;">NA</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: is_multi_select &lt;chr&gt;</span></span>
 </code></pre></div>
     </div>
   </div>
