@@ -34,5 +34,6 @@ Imports:
     reticulate,
     cli,
     sys,
-    readr
+    readr,
+    reactable
 VignetteBuilder: knitr
