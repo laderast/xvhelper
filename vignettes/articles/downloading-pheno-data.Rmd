@@ -56,6 +56,10 @@ In the next step, we'll need a list of fields. We can explore the list of fields
 explore_field_list(ds_id)
 ```
 
+```{r}
+
+```
+
 ## Extracting Data
 
 Now that we have the dataset id, we can extract the data into our RStudio Project. By default, `extract_data()` will save the data as a file into our current working directory.
@@ -112,3 +116,9 @@ cohort1[1:10,] |>
   decode_multi_purrr(codings) |>
   decode_column_names(codings)
 ```
+
+## Limitations
+
+`extract_data()` is based on `dx extract_dataset` from the `dx-toolkit`. There are some limitations with queries, since it uses a shared resource called the Thrift server to extract data. You may get an error if you try to extract more than ~15 fields at once.
+
+I am working on functions that run `Table Exporter` for much larger sets of fields.

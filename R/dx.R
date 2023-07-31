@@ -156,6 +156,9 @@ find_linked_dataset <- function(cohort_id){
   }
 
   out <- dxpy$describe(obj_id)
+
+  #                error=reticulate::py_last_error())
+
   links <- out$links
   obj_id <- links[stringr::str_detect(links, "record")]
   proj_id <- out$project
@@ -334,3 +337,4 @@ get_dictionaries <- function(dataset_id=NULL){
   cli::cli_alert_success("Coding dictionary is downloaded as {curr_dir}/{ds_name}.dataset.codings.csv")
   cli::cli_alert_success("Entity dictionary is downloaded as {curr_dir}/{ds_name}.entity_dictionary.csv")
 }
+

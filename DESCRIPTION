@@ -35,5 +35,6 @@ Imports:
     cli,
     sys,
     readr,
-    reactable
+    reactable,
+    htmltools
 VignetteBuilder: knitr

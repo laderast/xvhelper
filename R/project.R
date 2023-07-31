@@ -39,10 +39,12 @@ explore_field_list <- function(ds_id, path=".") {
 
   dd <- readr::read_csv(data_dict_path, show_col_types = FALSE)
 
-  dd |>
+  field_table <- dd |>
     dplyr::select(title, entity, name) |>
-    dplyr::mutate(ent_field = glue::glue("{entity}.{name}")) |>
-    reactable::reactable(searchable = TRUE)
+    dplyr::mutate(ent_field = glue::glue("{entity}.{name}"))
+
+    reactable::reactable(field_table, searchable = TRUE,
+                         selection = "multiple",elementId = "explore")
 }
 
 
