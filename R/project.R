@@ -43,8 +43,10 @@ explore_field_list <- function(ds_id, path=".") {
     dplyr::select(title, entity, name) |>
     dplyr::mutate(ent_field = glue::glue("{entity}.{name}"))
 
-    reactable::reactable(field_table, searchable = TRUE,
-                         selection = "multiple",elementId = "explore")
+    reactable::reactable(field_table,
+                         searchable = TRUE,
+                         selection = "multiple",
+                         elementId = "explore")
 }
 
 
@@ -447,6 +449,5 @@ decode_multi_large_df <- function(df, coding, df_size=2000){
   out_frame
 
 }
-
 
 

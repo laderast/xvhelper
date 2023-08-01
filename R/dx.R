@@ -338,3 +338,65 @@ get_dictionaries <- function(dataset_id=NULL){
   cli::cli_alert_success("Entity dictionary is downloaded as {curr_dir}/{ds_name}.entity_dictionary.csv")
 }
 
+strip_field_names <- function(field_list){
+  stringr::str_split_i(field_list, "\\.", 2)
+}
+
+#' Runs the Table Exporter App to Extract Larger Datasets
+#'
+#' @param ds_id - dataset id in the format "project-XXXX:dataset-YYYYY"
+#' @param field_list - vector or list of field ids in the format
+#'
+#' @return
+#' @export
+#'
+#' @examples
+extract_with_table_exporter <- function(ds_id, field_list=NULL, coding_option="REPLACE") {
+
+  dxpy <- check_env()
+  debug <- TRUE
+  ds_name <- get_name_from_full_id(ds_id)
+
+  if (is.null(ds_id)){
+    #opt$dataset <- dataset
+    cli::cli_abort("No dataset argument")
+  }
+
+  if (is.null(field_list)){
+    cli::cli_abort("No list of fields")
+  }
+
+  field_list = strip_field_names(field_list)
+
+  json_list <- list(
+    #dataset_or_cohort_or_dashboard=list(`$dnanexus_link`=glue::glue(ds_id)),
+                    entity="participant",
+                    field_names=field_list,
+                    header_style = "FIELD-TITLE",
+                    coding_option = "REPLACE")
+  json_string <- jsonlite::toJSON(json_list, auto_unbox = TRUE)
+
+  cmd <- "dx"
+
+  cmdargs <- c("run", "app-table-exporter",
+               glue::glue("-idataset_or_cohort_or_dashboard={ds_id}"),
+               "--brief", "--wait",
+               "-y", glue::glue("-j \'{json_string}\'"))
+
+  cmd_string <- paste0(cmdargs, collapse = " ")
+
+  cli::cli_alert("Running: dx {cmd_string}")
+
+  sys::exec_background(cmd, cmdargs,
+                       std_out = TRUE,
+                       std_err = TRUE)
+
+
+
+  #output_id <- strsplit(res[length(res)][1], split = " ")[[1]][7]
+  #system(paste("dx download -f", output_id, collapse = ''),
+  #       intern = TRUE, ignore.stdout = FALSE,
+  #       ignore.stderr = FALSE, wait = TRUE) # Download the output CSV file to the instance storage from which the applet was called
+
+}
+
