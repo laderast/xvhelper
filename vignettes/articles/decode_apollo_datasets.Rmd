@@ -1,8 +1,11 @@
 ---
-output: github_document
+title: "Decoding Apollo Datasets with xvhelper"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{decode_apollo_datasets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -11,6 +14,8 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+
+options(rmarkdown.html_vignette.check_title=FALSE)
 
 library(xvhelper)
 data("coding_dict")
@@ -28,15 +33,6 @@ Note: this package was recently named `dxhelper`. It has been renamed to `xvhelp
 The goal of xvhelper is to provide an tidy interface to extracting and decoding raw values from exported Apollo datasets, whether they are exported from `dx extract_dataset` or through a SparkSQL query.
 
 Given the data dictionary and the codings files, it will decode the categorical values from the raw data.
-
-## Installation
-
-You can install the development version of xvhelper from [GitHub](https://github.com/) with:
-
-``` r
-install.packages("remotes")
-remotes::install_github("laderast/xvhelper")
-```
 
 ## Note about example data
 
@@ -189,12 +185,9 @@ These functions are designed to work within RStudio (on UKB RAP) or JupyterLab (
 
 [See the article](https://laderast.github.io/xvhelper/articles/downloading-pheno-data.html) for more info.
 
-## New (8/3/23) Run Table Exporter
-
-There is now the ability to run Table Exporter if your `extract_data()` query fails. [See the article](https://laderast.github.io/xvhelper/articles/Running-Table-Exporter.html)
-
 ## Caveats/Limitations
 
 `extract_data()` is based on `dx extract_dataset` from the `dx-toolkit`. There are some limitations with queries, since it uses a shared resource called the Thrift server to extract data. You may get an error if you try to extract more than ~15 fields at once.
 
-See the above article about Running Table Exporter.
+I am working on functions that run `Table Exporter` for much larger sets of fields.
+

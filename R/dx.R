@@ -43,7 +43,7 @@ format_field_list <- function(field_list){
 #' @param field_list - vector/list of fields. Note that you can choose to return eids below
 #' @param return_eids - Whether to return eids
 #'
-#' @return
+#' @return Alert to dataset location
 #' @export
 #'
 #' @examples
@@ -155,7 +155,7 @@ find_linked_dataset <- function(cohort_id){
     cohort_id <- strsplit(cohort_id, ":")[[1]][2]
   }
 
-  out <- dxpy$describe(obj_id)
+  out <- try(dxpy$describe(cohort_id))
 
   #                error=reticulate::py_last_error())
 
@@ -202,6 +202,46 @@ find_all_cohorts <- function(){
 
   out_frame
 
+}
+
+#' Finds all jobs and executions in current project
+#'
+#' @return - data.frame with the following columns:
+#'  ``
+#' @export
+#'
+#' @examples
+find_all_jobs <- function(){
+  dxpy <- check_env()
+  proj_id <- dxpy$PROJECT_CONTEXT_ID
+
+  extract_fun <- function(x){
+    desc_obj <- x$describe
+    #desc_obj
+
+    out_file <- NA_character_
+
+    if(!is.null(desc_obj$output)){
+      out_file <- desc_obj$output$csv[[1]]$`$dnanexus_link`
+      if(is.null(out_file)){
+        out_file <- NA_character_
+      }
+    }
+
+    out_frame <- data.frame(job_id=glue::glue("{desc_obj$project}:{desc_obj$id}"),
+                            name=desc_obj$name, state=desc_obj$state,
+                            app=desc_obj$executableName, output_file=out_file)
+
+    out_frame
+
+  }
+
+  results <- dxpy$find_executions(describe=TRUE, project = proj_id)
+  out_list <- reticulate::iterate(results, extract_fun)
+
+  out_frame <- purrr::reduce(out_list, rbind)
+
+  return(out_frame)
 }
 
 #' List fields associated with dataset ID
@@ -338,3 +378,135 @@ get_dictionaries <- function(dataset_id=NULL){
   cli::cli_alert_success("Entity dictionary is downloaded as {curr_dir}/{ds_name}.entity_dictionary.csv")
 }
 
+strip_field_names <- function(field_list){
+  stringr::str_split_i(field_list, "\\.", 2)
+}
+
+strip_id <- function(ds_id){
+  stringr::str_split(ds_id, ":")[[1]][[2]]
+}
+
+strip_id_for_project <- function(ds_id){
+  stringr::str_split(ds_id, ":")[[1]][[1]]
+}
+
+
+
+#' Runs Table Exporter
+#'
+#' @param ds_id
+#' @param field_list
+#' @param ...
+#'
+#' @return job_id Job ID of launched job
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#' ds_id <- find_dataset_id()
+#' fields <- fields <- c("participant.eid", "participant.p31", "participant.p41202")
+#' job_id <- launch_table_exporter(ds_id, fields)
+#'
+#' # Watch our job
+#' check_job(job_id)
+#'
+#' # Terminate our job if necessary
+#' terminate_job(job_id)
+#'
+#' }
+launch_table_exporter <- function(ds_id, field_list, entity="participant",...){
+  dxpy = check_env()
+
+  app_iter <- dxpy$find_apps("table-exporter")
+  app_id <- reticulate::iter_next(app_iter)$id
+
+  ds_bare_id <- strip_id(ds_id)
+  project_id <- strip_id_for_project(ds_id)
+
+
+  table_exporter <- dxpy$DXApp(app_id)
+
+  if (is.null(ds_id)){
+    #opt$dataset <- dataset
+    cli::cli_abort("No dataset argument")
+  }
+
+  if (is.null(field_list)){
+    cli::cli_abort("No list of fields")
+  }
+
+  field_list = strip_field_names(field_list)
+
+  param_list <- list(
+    dataset_or_cohort_or_dashboard=list(`$dnanexus_link`=list(project=project_id, id=ds_bare_id)),
+    entity=entity,
+    field_names=field_list,
+    header_style = "FIELD-TITLE",
+    coding_option = "REPLACE")
+
+  job <- table_exporter$run(app_input = param_list)
+
+  job_id <- job$get_id()
+
+  cli::cli_alert("Job has been submitted as {job_id}")
+  cli::cli_alert('Use  check_job("{job_id})") to monitor job')
+
+  return(job_id)
+
+
+}
+
+#' Watches a job given a job id
+#'
+#' @param job_id - job id in the format of `job-XXXXXX`.
+#'
+#' @return file_id - If a CSV file was generated in the job, otherwise NULL. Prints alert
+#' to screen of job status and job_id for file generated.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ds_id <- find_dataset_id()
+#' fields <- fields <- c("participant.eid", "participant.p31", "participant.p41202")
+#' job_id <- launch_table_exporter(ds_id, fields)
+#'
+#' check_job(job_id)
+#' }
+#'
+check_job <- function(job_id){
+  dxpy = check_env()
+
+  job <- try(dxpy$DXJob(dxid = job_id))
+  desc <- job$describe()
+  status <- desc$state
+
+  cli::cli_alert_success("Job is currently {status}")
+
+  file_id <- NULL
+
+  if(!is.null(desc$output)){
+    file_id <- desc$output$csv[[1]]$`$dnanexus_link`
+    cli::cli_alert_success("File generated in project storage: {file_id}")
+    cli::cli_alert_success("Use `system('dx download {file_id}')` to download to local storage)")
+  }
+
+  return(file_id)
+}
+
+#' Terminates a job using job id
+#'
+#' @param job_id
+#'
+#' @return Nothing - alert that job has been terminated.
+#' @export
+#'
+#' @examples
+terminate_job <- function(job_id) {
+  dxpy = check_env()
+
+  job = try(dxpy$DXJob(dxid = job_id))
+  job$terminate()
+
+  cli::cli_alert("Job {job_id} has been terminated")
+}

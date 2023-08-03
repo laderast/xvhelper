@@ -19,6 +19,9 @@ extract_data(dataset_id, field_list)
 \item Whether to return eids
 }}
 }
+\value{
+Alert to dataset location
+}
 \description{
 Given a dataset id and list of fields, extract data
 }
