@@ -59,9 +59,15 @@ file_id <- check_job("job-GY4Zj180Yq3BJyFzg2ygGVX2")
 file_id
 ```
 
+We can download this to our JupyterLab/RStudio storage using:
+
+```{r eval=FALSE}
+system(glue::glue("dx download {file_id}"))
+```
+
 ## Finding all jobs
 
-We can see a list of all jobs and all their states by using `find_all_jobs()`
+We can see a list of all jobs and all their states by using `find_all_jobs()`:
 
 ```{r}
 job_frame <- find_all_jobs()

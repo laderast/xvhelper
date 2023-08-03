@@ -113,10 +113,10 @@ app.</p>
 <code class="sourceCode R"><span><span class="va">ds_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_dataset_id.html">find_dataset_id</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">fields</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"participant.eid"</span>, <span class="st">"participant.p31"</span>, <span class="st">"participant.p41202"</span><span class="op">)</span></span>
 <span><span class="va">job_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/launch_table_exporter.html">launch_table_exporter</a></span><span class="op">(</span><span class="va">ds_id</span>, <span class="va">fields</span><span class="op">)</span></span>
-<span><span class="co">#&gt; → Job has been submitted as job-GY61f700Yq3874f65jXbqz7Z</span></span>
-<span><span class="co">#&gt; → Use  check_job("job-GY61f700Yq3874f65jXbqz7Z)") to monitor job</span></span>
+<span><span class="co">#&gt; → Job has been submitted as job-GY61q000Yq3496Z4xxZj0V80</span></span>
+<span><span class="co">#&gt; → Use  check_job("job-GY61q000Yq3496Z4xxZj0V80)") to monitor job</span></span>
 <span><span class="va">job_id</span></span>
-<span><span class="co">#&gt; [1] "job-GY61f700Yq3874f65jXbqz7Z"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "job-GY61q000Yq3496Z4xxZj0V80"</span></span></code></pre></div>
 <p>When our Table Exporter job is running, we can check on its status
 using <code><a href="../reference/check_job.html">check_job()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -137,7 +137,7 @@ successfully, it will return a <code>file-id</code> (see below).</p>
 <code><a href="../reference/terminate_job.html">terminate_job()</a></code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/terminate_job.html">terminate_job</a></span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span>
-<span><span class="co">#&gt; → Job job-GY61f700Yq3874f65jXbqz7Z has been terminated</span></span></code></pre></div>
+<span><span class="co">#&gt; → Job job-GY61q000Yq3496Z4xxZj0V80 has been terminated</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="successful-table-exporter-run">Successful Table Exporter Run<a class="anchor" aria-label="anchor" href="#successful-table-exporter-run"></a>
@@ -152,39 +152,46 @@ Here we’re passing in a job ID for a successful run.</p>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Use `system('dx download file-GY4Zq9j0gJVQxgKGxV7YG6KJ')` to download to local storage)</span></span>
 <span><span class="va">file_id</span></span>
 <span><span class="co">#&gt; [1] "file-GY4Zq9j0gJVQxgKGxV7YG6KJ"</span></span></code></pre></div>
+<p>We can download this to our JupyterLab/RStudio storage using:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"dx download {file_id}"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="finding-all-jobs">Finding all jobs<a class="anchor" aria-label="anchor" href="#finding-all-jobs"></a>
 </h2>
 <p>We can see a list of all jobs and all their states by using
-<code><a href="../reference/find_all_jobs.html">find_all_jobs()</a></code></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code><a href="../reference/find_all_jobs.html">find_all_jobs()</a></code>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">job_frame</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_all_jobs.html">find_all_jobs</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">job_frame</span></span>
 <span><span class="co">#&gt;                                                           job_id</span></span>
-<span><span class="co">#&gt; 1  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY61f700Yq3874f65jXbqz7Z</span></span>
-<span><span class="co">#&gt; 2  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY61bxQ0Yq37F3G25160P623</span></span>
-<span><span class="co">#&gt; 3  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY6074j0Yq31ybPXPX6q1pvj</span></span>
-<span><span class="co">#&gt; 4  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5vk580Yq38xpKf11bp8QJ5</span></span>
-<span><span class="co">#&gt; 5  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5vj9j0Yq3JZFfZ96qGBqqV</span></span>
-<span><span class="co">#&gt; 6  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5FPy80Yq31ybPXPX6pyqy9</span></span>
-<span><span class="co">#&gt; 7  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5FJJj0Yq3FvB5zzkXffjzG</span></span>
-<span><span class="co">#&gt; 8  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5F7Zj0Yq3JJ3b2853K9XkF</span></span>
-<span><span class="co">#&gt; 9  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4g4q00Yq362FYzZ9xQXxg2</span></span>
-<span><span class="co">#&gt; 10 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4f6B00Yq349vVKqKQJJgyV</span></span>
-<span><span class="co">#&gt; 11 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4f4kQ0Yq3Kj0ZpZYxKX9Qq</span></span>
-<span><span class="co">#&gt; 12 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4bq3Q0Yq38x1xJqZKXF1K5</span></span>
-<span><span class="co">#&gt; 13 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4bp0j0Yq36XYpx8QGx1VkX</span></span>
-<span><span class="co">#&gt; 14 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4bQYj0Yq38b3Pf0PXzVk0j</span></span>
-<span><span class="co">#&gt; 15 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4b72Q0Yq32vqFp89yqGk4p</span></span>
-<span><span class="co">#&gt; 16 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4Zzg80Yq303pgXq7Qf5yPB</span></span>
-<span><span class="co">#&gt; 17 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4ZyQj0Yq303pgXq7Qf5yGk</span></span>
-<span><span class="co">#&gt; 18 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4Zj180Yq3BJyFzg2ygGVX2</span></span>
-<span><span class="co">#&gt; 19 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4YBp80Yq3Kj0ZpZYxKX1X1</span></span>
-<span><span class="co">#&gt; 20 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4Y1JQ0Yq38b3Pf0PXzVYQx</span></span>
-<span><span class="co">#&gt; 21 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY20GQQ0Yq34KBfpbJZ0gQ3v</span></span>
-<span><span class="co">#&gt; 22 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY1B2Xj0Yq3738KP3ZF2vfqQ</span></span>
-<span><span class="co">#&gt; 23 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY19ZZ80Yq36122fZvq22Ykg</span></span>
+<span><span class="co">#&gt; 1  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY61q000Yq3496Z4xxZj0V80</span></span>
+<span><span class="co">#&gt; 2  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY61p280Yq31qFxBFg9PYppQ</span></span>
+<span><span class="co">#&gt; 3  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY61kX00Yq34pvqfXz9kqzbf</span></span>
+<span><span class="co">#&gt; 4  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY61k4Q0Yq3BVj7B92Bq8pG4</span></span>
+<span><span class="co">#&gt; 5  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY61f700Yq3874f65jXbqz7Z</span></span>
+<span><span class="co">#&gt; 6  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY61bxQ0Yq37F3G25160P623</span></span>
+<span><span class="co">#&gt; 7  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY6074j0Yq31ybPXPX6q1pvj</span></span>
+<span><span class="co">#&gt; 8  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5vk580Yq38xpKf11bp8QJ5</span></span>
+<span><span class="co">#&gt; 9  project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5vj9j0Yq3JZFfZ96qGBqqV</span></span>
+<span><span class="co">#&gt; 10 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5FPy80Yq31ybPXPX6pyqy9</span></span>
+<span><span class="co">#&gt; 11 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5FJJj0Yq3FvB5zzkXffjzG</span></span>
+<span><span class="co">#&gt; 12 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY5F7Zj0Yq3JJ3b2853K9XkF</span></span>
+<span><span class="co">#&gt; 13 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4g4q00Yq362FYzZ9xQXxg2</span></span>
+<span><span class="co">#&gt; 14 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4f6B00Yq349vVKqKQJJgyV</span></span>
+<span><span class="co">#&gt; 15 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4f4kQ0Yq3Kj0ZpZYxKX9Qq</span></span>
+<span><span class="co">#&gt; 16 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4bq3Q0Yq38x1xJqZKXF1K5</span></span>
+<span><span class="co">#&gt; 17 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4bp0j0Yq36XYpx8QGx1VkX</span></span>
+<span><span class="co">#&gt; 18 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4bQYj0Yq38b3Pf0PXzVk0j</span></span>
+<span><span class="co">#&gt; 19 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4b72Q0Yq32vqFp89yqGk4p</span></span>
+<span><span class="co">#&gt; 20 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4Zzg80Yq303pgXq7Qf5yPB</span></span>
+<span><span class="co">#&gt; 21 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4ZyQj0Yq303pgXq7Qf5yGk</span></span>
+<span><span class="co">#&gt; 22 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4Zj180Yq3BJyFzg2ygGVX2</span></span>
+<span><span class="co">#&gt; 23 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4YBp80Yq3Kj0ZpZYxKX1X1</span></span>
+<span><span class="co">#&gt; 24 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY4Y1JQ0Yq38b3Pf0PXzVYQx</span></span>
+<span><span class="co">#&gt; 25 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY20GQQ0Yq34KBfpbJZ0gQ3v</span></span>
+<span><span class="co">#&gt; 26 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY1B2Xj0Yq3738KP3ZF2vfqQ</span></span>
+<span><span class="co">#&gt; 27 project-GY19Qz00Yq34kBPz8jj0XKg0:job-GY19ZZ80Yq36122fZvq22Ykg</span></span>
 <span><span class="co">#&gt;                              name      state            app</span></span>
 <span><span class="co">#&gt; 1                  Table exporter       idle table-exporter</span></span>
 <span><span class="co">#&gt; 2                  Table exporter terminated table-exporter</span></span>
@@ -203,12 +210,16 @@ Here we’re passing in a job ID for a successful run.</p>
 <span><span class="co">#&gt; 15                 Table exporter terminated table-exporter</span></span>
 <span><span class="co">#&gt; 16                 Table exporter terminated table-exporter</span></span>
 <span><span class="co">#&gt; 17                 Table exporter terminated table-exporter</span></span>
-<span><span class="co">#&gt; 18                 Table exporter       done table-exporter</span></span>
-<span><span class="co">#&gt; 19                 Table exporter       done table-exporter</span></span>
-<span><span class="co">#&gt; 20                 Table exporter     failed table-exporter</span></span>
-<span><span class="co">#&gt; 21 JupyterLab - 7/27/2023 9:24 AM terminated   dxjupyterlab</span></span>
-<span><span class="co">#&gt; 22 JupyterLab - 7/27/2023 9:24 AM terminated   dxjupyterlab</span></span>
-<span><span class="co">#&gt; 23 JupyterLab - 7/27/2023 9:24 AM terminated   dxjupyterlab</span></span>
+<span><span class="co">#&gt; 18                 Table exporter terminated table-exporter</span></span>
+<span><span class="co">#&gt; 19                 Table exporter terminated table-exporter</span></span>
+<span><span class="co">#&gt; 20                 Table exporter terminated table-exporter</span></span>
+<span><span class="co">#&gt; 21                 Table exporter terminated table-exporter</span></span>
+<span><span class="co">#&gt; 22                 Table exporter       done table-exporter</span></span>
+<span><span class="co">#&gt; 23                 Table exporter       done table-exporter</span></span>
+<span><span class="co">#&gt; 24                 Table exporter     failed table-exporter</span></span>
+<span><span class="co">#&gt; 25 JupyterLab - 7/27/2023 9:24 AM terminated   dxjupyterlab</span></span>
+<span><span class="co">#&gt; 26 JupyterLab - 7/27/2023 9:24 AM terminated   dxjupyterlab</span></span>
+<span><span class="co">#&gt; 27 JupyterLab - 7/27/2023 9:24 AM terminated   dxjupyterlab</span></span>
 <span><span class="co">#&gt;                      output_file</span></span>
 <span><span class="co">#&gt; 1                           &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 2                           &lt;NA&gt;</span></span>
@@ -227,15 +238,19 @@ Here we’re passing in a job ID for a successful run.</p>
 <span><span class="co">#&gt; 15                          &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 16                          &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 17                          &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 18 file-GY4Zq9j0gJVQxgKGxV7YG6KJ</span></span>
-<span><span class="co">#&gt; 19 file-GY4YK100fqYgbqyqF3YqbyfF</span></span>
+<span><span class="co">#&gt; 18                          &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 19                          &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 20                          &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 21                          &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 22                          &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 23                          &lt;NA&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; 22 file-GY4Zq9j0gJVQxgKGxV7YG6KJ</span></span>
+<span><span class="co">#&gt; 23 file-GY4YK100fqYgbqyqF3YqbyfF</span></span>
+<span><span class="co">#&gt; 24                          &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 25                          &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 26                          &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 27                          &lt;NA&gt;</span></span></code></pre></div>
 <p>We can find the finished jobs by looking for
 <code>state == "done"</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">job_frame</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">state</span> <span class="op">==</span> <span class="st">"done"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                                                          job_id           name</span></span>
