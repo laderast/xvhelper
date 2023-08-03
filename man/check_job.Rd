@@ -25,7 +25,6 @@ fields <- fields <- c("participant.eid", "participant.p31", "participant.p41202"
 job_id <- launch_table_exporter(ds_id, fields)
 
 check_job(job_id)
-
 }
 
 }

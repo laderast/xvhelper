@@ -4,7 +4,7 @@
 \alias{launch_table_exporter}
 \title{Runs Table Exporter}
 \usage{
-launch_table_exporter(ds_id, field_list, ...)
+launch_table_exporter(ds_id, field_list, entity = "participant", ...)
 }
 \arguments{
 \item{...}{}

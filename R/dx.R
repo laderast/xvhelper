@@ -204,6 +204,46 @@ find_all_cohorts <- function(){
 
 }
 
+#' Finds all jobs and executions in current project
+#'
+#' @return - data.frame with the following columns:
+#'  ``
+#' @export
+#'
+#' @examples
+find_all_jobs <- function(){
+  dxpy <- check_env()
+  proj_id <- dxpy$PROJECT_CONTEXT_ID
+
+  extract_fun <- function(x){
+    desc_obj <- x$describe
+    #desc_obj
+
+    out_file <- NA_character_
+
+    if(!is.null(desc_obj$output)){
+      out_file <- desc_obj$output$csv[[1]]$`$dnanexus_link`
+      if(is.null(out_file)){
+        out_file <- NA_character_
+      }
+    }
+
+    out_frame <- data.frame(job_id=glue::glue("{desc_obj$project}:{desc_obj$id}"),
+                            name=desc_obj$name, state=desc_obj$state,
+                            app=desc_obj$executableName, output_file=out_file)
+
+    out_frame
+
+  }
+
+  results <- dxpy$find_executions(describe=TRUE, project = proj_id)
+  out_list <- reticulate::iterate(results, extract_fun)
+
+  out_frame <- purrr::reduce(out_list, rbind)
+
+  return(out_frame)
+}
+
 #' List fields associated with dataset ID
 #'
 #' Given a dataset ID generated from get_dataset_id(), runs `dx extract_dataset`

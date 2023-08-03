@@ -58,3 +58,19 @@ If our job finishes successfully or fails, we will receive an email notifiation.
 file_id <- check_job("job-GY4Zj180Yq3BJyFzg2ygGVX2")
 file_id
 ```
+
+## Finding all jobs
+
+We can see a list of all jobs and all their states by using `find_all_jobs()`
+
+```{r}
+job_frame <- find_all_jobs()
+job_frame
+```
+
+We can find the finished jobs by looking for `state == "done"`:
+
+```{r}
+job_frame |>
+  dplyr::filter(state == "done")
+```
