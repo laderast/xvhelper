@@ -53,10 +53,10 @@
       <a href="../articles/Running-Table-Exporter.html">Running Table Exporter</a>
     </li>
     <li>
-      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab/RStudio</a>
+      <a href="../articles/decode_apollo_datasets.html">Decoding Apollo Datasets with xvhelper</a>
     </li>
     <li>
-      <a href="../articles/decode_apollo_datasets.html">Decoding Apollo Datasets with xvhelper</a>
+      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab/RStudio</a>
     </li>
   </ul>
 </li>
@@ -113,10 +113,10 @@ app.</p>
 <code class="sourceCode R"><span><span class="va">ds_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_dataset_id.html">find_dataset_id</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">fields</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"participant.eid"</span>, <span class="st">"participant.p31"</span>, <span class="st">"participant.p41202"</span><span class="op">)</span></span>
 <span><span class="va">job_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/launch_table_exporter.html">launch_table_exporter</a></span><span class="op">(</span><span class="va">ds_id</span>, <span class="va">fields</span><span class="op">)</span></span>
-<span><span class="co">#&gt; → Job has been submitted as job-GY5vk580Yq38xpKf11bp8QJ5</span></span>
-<span><span class="co">#&gt; → Use system("dx watch job-GY5vk580Yq38xpKf11bp8QJ5") to monitor job</span></span>
+<span><span class="co">#&gt; → Job has been submitted as job-GY6074j0Yq31ybPXPX6q1pvj</span></span>
+<span><span class="co">#&gt; → Use system("dx watch job-GY6074j0Yq31ybPXPX6q1pvj") to monitor job</span></span>
 <span><span class="va">job_id</span></span>
-<span><span class="co">#&gt; [1] "job-GY5vk580Yq38xpKf11bp8QJ5"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "job-GY6074j0Yq31ybPXPX6q1pvj"</span></span></code></pre></div>
 <p>When our Table Exporter job is running, we can check on its status
 using <code><a href="../reference/check_job.html">check_job()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -127,6 +127,7 @@ using <code><a href="../reference/check_job.html">check_job()</a></code>:</p>
 successfully, it will return a <code>file-id</code> (see below).</p>
 <p>The states our job can be are:</p>
 <ul>
+<li><code>idle</code></li>
 <li><code>runnable</code></li>
 <li><code>running</code></li>
 <li><code>failed</code></li>
@@ -136,7 +137,7 @@ successfully, it will return a <code>file-id</code> (see below).</p>
 <code><a href="../reference/terminate_job.html">terminate_job()</a></code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/terminate_job.html">terminate_job</a></span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span>
-<span><span class="co">#&gt; → Job job-GY5vk580Yq38xpKf11bp8QJ5 has been terminated</span></span></code></pre></div>
+<span><span class="co">#&gt; → Job job-GY6074j0Yq31ybPXPX6q1pvj has been terminated</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="successful-table-exporter-run">Successful Table Exporter Run<a class="anchor" aria-label="anchor" href="#successful-table-exporter-run"></a>

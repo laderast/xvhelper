@@ -43,7 +43,7 @@ format_field_list <- function(field_list){
 #' @param field_list - vector/list of fields. Note that you can choose to return eids below
 #' @param return_eids - Whether to return eids
 #'
-#' @return
+#' @return Alert to dataset location
 #' @export
 #'
 #' @examples
@@ -375,7 +375,7 @@ strip_id_for_project <- function(ds_id){
 #' terminate_job(job_id)
 #'
 #' }
-launch_table_exporter <- function(ds_id, field_list, ...){
+launch_table_exporter <- function(ds_id, field_list, entity="participant",...){
   dxpy = check_env()
 
   app_iter <- dxpy$find_apps("table-exporter")
@@ -400,7 +400,7 @@ launch_table_exporter <- function(ds_id, field_list, ...){
 
   param_list <- list(
     dataset_or_cohort_or_dashboard=list(`$dnanexus_link`=list(project=project_id, id=ds_bare_id)),
-    entity="participant",
+    entity=entity,
     field_names=field_list,
     header_style = "FIELD-TITLE",
     coding_option = "REPLACE")
@@ -432,7 +432,6 @@ launch_table_exporter <- function(ds_id, field_list, ...){
 #' job_id <- launch_table_exporter(ds_id, fields)
 #'
 #' check_job(job_id)
-#'
 #' }
 #'
 check_job <- function(job_id){
