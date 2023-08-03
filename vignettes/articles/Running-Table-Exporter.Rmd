@@ -38,6 +38,7 @@ Note that it also returns a `NULL`. When our job finishes successfully, it will 
 
 The states our job can be are:
 
+- `idle` 
 - `runnable`
 - `running`
 - `failed`
