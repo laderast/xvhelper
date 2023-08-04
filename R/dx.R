@@ -20,8 +20,8 @@ install_dxpy <- function(method="auto", conda="auto") {
 #  if(!reticulate::virtualenv_exists(env_name)){
 #    reticulate::virtualenv_create(env_name)
 #  }
-
-  reticulate::py_install(packages=c("dxpy", "pandas"), method=method, auto=auto)
+  reticulate::py_install(packages=c("pandas"), method=method, auto=auto)
+  reticulate::py_install(packages=c("dxpy"), method=method, auto=auto, channel="bioconda")
   #reticulate::virtualenv_install(env_name, packages = c("dxpy", "pandas"))
   cli::cli_alert_success("dxpy is now installed")
   #cli::cli_alert_success("use reticulate::use_virtualenv('{env_name}') to use")
