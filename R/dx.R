@@ -383,11 +383,11 @@ strip_field_names <- function(field_list){
 }
 
 strip_id <- function(ds_id){
-  stringr::str_split(ds_id, ":")[[1]][[2]]
+  strsplit(ds_id, ":")[[1]][[2]]
 }
 
 strip_id_for_project <- function(ds_id){
-  stringr::str_split(ds_id, ":")[[1]][[1]]
+  strsplit(ds_id, ":")[[1]][[1]]
 }
 
 
