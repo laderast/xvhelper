@@ -192,7 +192,7 @@ decode_single <- function(cohort, coding){
 #' `decode_multi_large_df()`, which will split your data frame into
 #' smaller ones for decoding.
 #'
-#' @param cohort
+#' @param cohort - cohort or dataset in data.frame format
 #' @param coding
 #'
 #' @return Labeled data frame where multi category columns are decoded
@@ -209,8 +209,8 @@ decode_single <- function(cohort, coding){
 #'   decode_multi_purrr(cdata)
 #'
 decode_multi_purrr <- function(cohort, coding){
-  coding_table <- build_coding_table(coding) #|>
-    #dplyr::filter(ent_field %in% colnames(cohort))
+  coding_table <- build_coding_table(coding) |>
+    dplyr::filter(ent_field %in% colnames(cohort))
 
   col_class <- lapply(cohort, class)
 
