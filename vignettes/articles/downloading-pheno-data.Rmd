@@ -116,8 +116,9 @@ fields <- c("participant.eid", "participant.p31", "participant.p41202")
 cohort_id <- cohorts$project_record[1]
 extract_data(cohort_id, fields)
 ```
+
 ```{r}
-cohort1 <- readr::read_csv("white_british_unrelated_never_smoked.data.csv")
+cohort1 <- readr::read_csv("female_control_3.0.data.csv")
 knitr::kable(cohort1[1:10,])
 ```
 
