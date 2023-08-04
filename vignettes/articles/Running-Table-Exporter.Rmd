@@ -13,6 +13,8 @@ knitr::opts_chunk$set(
 library(xvhelper)
 ```
 
+> Note: This functionality is currently experimental. I'm working to get it working on UK Biobank RAP right now.
+
 ## Running Table Exporter
 
 If we have a large number of fields (more than 15-20) to extract from the pheno data, then our call to `extract_data()` may fail. That is because this functionality is dependent on a shared resource called the Thrift Server. There is a hard limit to the query execution time on the Thrift server: 2 minutes.

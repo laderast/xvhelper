@@ -2,10 +2,7 @@
 title: "Downloading Pheno Data in JupyterLab/RStudio"
 ---
 
-```{bash}
-#| include: false
-dx select project-GY19Qz00Yq34kBPz8jj0XKg0
-```
+> > Note: This functionality is currently experimental. I'm working to get it working on UK Biobank RAP right now.
 
 ## Using `xvhelper` to download and decode pheno datasets
 

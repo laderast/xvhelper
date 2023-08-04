@@ -50,10 +50,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab/RStudio</a>
+      <a href="../articles/Running-Table-Exporter.html">Running Table Exporter</a>
     </li>
     <li>
       <a href="../articles/decode_apollo_datasets.html">Decoding Apollo Datasets with xvhelper</a>
+    </li>
+    <li>
+      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab/RStudio</a>
     </li>
   </ul>
 </li>
@@ -90,6 +93,12 @@ JupyterLab/RStudio</h1>
 
     
     
+<blockquote>
+<blockquote>
+<p>Note: This functionality is currently experimental. I’m working to
+get it working on UK Biobank RAP right now.</p>
+</blockquote>
+</blockquote>
 <div class="section level2">
 <h2 id="using-xvhelper-to-download-and-decode-pheno-datasets">Using <code>xvhelper</code> to download and decode pheno
 datasets<a class="anchor" aria-label="anchor" href="#using-xvhelper-to-download-and-decode-pheno-datasets"></a>
@@ -133,9 +142,9 @@ We’l first fetch the dictionaries for our particular dataset.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/get_dictionaries.html">get_dictionaries</a></span><span class="op">(</span><span class="va">ds_id</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## → running dx extract_dataset project-GY19Qz00Yq34kBPz8jj0XKg0:record-G406j8j0x8kzxv3G08k64gVV --dump-dataset-dictionary</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Data dictionary is downloaded as /Users/tladeras/Code/dxhelper/vignettes/articles/apollo_ukrap_synth_pheno_100k.dataset.data_dictionary.csv</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Coding dictionary is downloaded as /Users/tladeras/Code/dxhelper/vignettes/articles/apollo_ukrap_synth_pheno_100k.dataset.codings.csv</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Entity dictionary is downloaded as /Users/tladeras/Code/dxhelper/vignettes/articles/apollo_ukrap_synth_pheno_100k.entity_dictionary.csv</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Data dictionary is downloaded as /Users/tladeras/Code/xvhelper/vignettes/articles/apollo_ukrap_synth_pheno_100k.dataset.data_dictionary.csv</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Coding dictionary is downloaded as /Users/tladeras/Code/xvhelper/vignettes/articles/apollo_ukrap_synth_pheno_100k.dataset.codings.csv</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> Entity dictionary is downloaded as /Users/tladeras/Code/xvhelper/vignettes/articles/apollo_ukrap_synth_pheno_100k.entity_dictionary.csv</span></span></code></pre>
 <p>Now that we have the dictionary files into our JupyterLab/RStudio
 storage, we can extract the coding/data dictionary, which we’ll use in
 our decoding.</p>
@@ -179,7 +188,7 @@ data as a file into our current working directory.</p>
 <code class="sourceCode R"><span><span class="va">fields</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"participant.eid"</span>, <span class="st">"participant.p31"</span>, <span class="st">"participant.p41202"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/extract_data.html">extract_data</a></span><span class="op">(</span><span class="va">ds_id</span>, <span class="va">fields</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## → running dx extract_dataset project-GY19Qz00Yq34kBPz8jj0XKg0:record-G406j8j0x8kzxv3G08k64gVV --fields participant.eid,participant.p31,participant.p41202 -o apollo_ukrap_synth_pheno_100k.data.csv</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> data is now extracted to /Users/tladeras/Code/dxhelper/vignettes/articles/apollo_ukrap_synth_pheno_100k.data.csv</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> data is now extracted to /Users/tladeras/Code/xvhelper/vignettes/articles/apollo_ukrap_synth_pheno_100k.data.csv</span></span></code></pre>
 <p>Let’s read in the data file in.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="st">"apollo_ukrap_synth_pheno_100k.data.csv"</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -322,7 +331,7 @@ dataset. Let’s list the cohorts in our project:</p>
 <span><span class="va">cohort_id</span> <span class="op">&lt;-</span> <span class="va">cohorts</span><span class="op">$</span><span class="va">project_record</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/extract_data.html">extract_data</a></span><span class="op">(</span><span class="va">cohort_id</span>, <span class="va">fields</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## → running dx extract_dataset project-GY19Qz00Yq34kBPz8jj0XKg0:record-G5Ky4f008KQZZ6bx0yYz44fB --fields participant.eid,participant.p31,participant.p41202 -o female_control_3.0.data.csv</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> data is now extracted to /Users/tladeras/Code/dxhelper/vignettes/articles/female_control_3.0.data.csv</span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BB00;">✔</span> data is now extracted to /Users/tladeras/Code/xvhelper/vignettes/articles/female_control_3.0.data.csv</span></span></code></pre>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cohort1</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="st">"female_control_3.0.data.csv"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">37206</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">3</span></span></span>
