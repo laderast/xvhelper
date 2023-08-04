@@ -2,13 +2,27 @@
 title: "Downloading Pheno Data in JupyterLab/RStudio"
 ---
 
-> > Note: This functionality is currently experimental. I'm working to get it working on UK Biobank RAP right now.
+> Note: This functionality is currently experimental. I'm working to get it working on UK Biobank RAP right now.
 
 ## Using `xvhelper` to download and decode pheno datasets
 
 > See the [Jupyter Notebook version here](https://github.com/laderast/xvhelper/blob/master/vignettes/articles/downloading-pheno-data.ipynb)
 
 If we are running JupyterLab or RStudio on the RAP/DNAnexus platform, we can use `xvhelper` to automate our downloading and decoding of the Pheno Data.
+
+## UKB RAP RStudio only
+
+```{bash eval=FALSE}
+pip3 install dxpy==0.354.0
+pip3 install pandas
+```
+
+```{r eval=FALSE}
+install.packages("remotes")
+remotes::install_github("laderast/xvhelper")
+```
+
+## Starting Out
 
 ```{r}
 library(xvhelper)
@@ -76,12 +90,14 @@ head(data)
 ```
 
 ```{r}
-data[1:50,] |>
+decoded_data <- data[1:5000,] |>
   decode_single(codings) |>
-  decode_multi_purrr(codings) |>
-  decode_column_names(codings) |>
-  head() |>
-  knitr::kable()
+  decode_multi_large_df(codings) |>
+  decode_column_names(codings) 
+```
+
+```{r}
+head(decoded_data)
 ```
 
 ## Reading in Cohort Information
@@ -101,7 +117,7 @@ cohort_id <- cohorts$project_record[1]
 extract_data(cohort_id, fields)
 ```
 ```{r}
-cohort1 <- readr::read_csv("female_control_3.0.data.csv")
+cohort1 <- readr::read_csv("white_british_unrelated_never_smoked.data.csv")
 knitr::kable(cohort1[1:10,])
 ```
 
