@@ -87,14 +87,16 @@ decode_column_names <- function(cohort, coded_col_df, r_clean_names=TRUE) {
       janitor::make_clean_names()
   }
 
-
   colnames(cohort) <- replacements
 
   cohort
 
 }
 
-
+subset_codings <- function(codings, data){
+  codings |>
+    dplyr::filter(ent_field %in% colnames(data))
+}
 
 
 #' Title
@@ -145,6 +147,8 @@ merge_coding_data_dict <- function(coding_dict, data_dict) {
 #' cohort |>
 #'   decode_single(cdata)
 decode_single <- function(cohort, coding){
+  coding <- subset_codings(codings = coding, data = cohort)
+
   coding_table <- build_coding_table(coding)  |>
     dplyr::filter(ent_field %in% colnames(cohort))
 
@@ -209,6 +213,8 @@ decode_single <- function(cohort, coding){
 #'   decode_multi_purrr(cdata)
 #'
 decode_multi_purrr <- function(cohort, coding){
+  coding <- subset_codings(codings = coding, data = cohort)
+
   coding_table <- build_coding_table(coding) |>
     dplyr::filter(ent_field %in% colnames(cohort))
 
@@ -443,6 +449,7 @@ process_multi_list <- function(out_list, codings){
 #'
 #' @examples
 decode_multi_large_df <- function(df, coding, df_size=2000){
+  coding <- subset_codings(codings = coding, data = cohort)
   out_list <- split_df_by_index(df, split_by = df_size)
   out_list2 <- process_multi_list(out_list, coding)
   out_frame <- purrr::reduce(out_list2, rbind)

@@ -7,6 +7,10 @@
 decode_multi_purrr(cohort, coding)
 }
 \arguments{
+\item{cohort}{\itemize{
+\item cohort or dataset in data.frame format
+}}
+
 \item{coding}{}
 }
 \value{

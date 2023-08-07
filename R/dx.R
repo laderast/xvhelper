@@ -6,7 +6,7 @@
 #' Useful for using xvhelper on your own machine.
 #'
 #' @return no-value. Side effect is that dxpy and pandas are installed
-#' into reticulate environment.
+#' into `r-reticulate` environment.
 #' @export
 #'
 #' @examples
@@ -68,7 +68,7 @@ extract_data <- function(dataset_id, field_list) {
             "-o", file_out)
 
   cli::cli_alert("running dx extract_dataset {dataset_id} --fields {field_list_format} -o {file_out}")
-  sys::exec_wait(cmd=cmd, args=args)
+  try(sys::exec_wait(cmd=cmd, args=args))
   curr_dir <- getwd()
   cli::cli_alert_success("data is now extracted to {curr_dir}/{file_out}")
 
@@ -244,6 +244,49 @@ find_all_jobs <- function(){
   return(out_frame)
 }
 
+find_files <- function(path="/", tags=NULL,
+                       name=NULL, state=NULL){
+  dxpy <- check_env()
+
+  extract_fun <- function(x){
+    desc_obj <- x$describe
+
+    tags <- NA
+
+    if(length(desc_obj$tags)!=0){
+
+    }
+
+    if(FALSE){
+
+    }
+
+    out_frame <- data.frame(id = glue::glue("{desc_obj$project}:{desc_obj$id}"),
+                            full_path = glue::glue("{desc_obj$folder}/{desc_obj$name}"),
+                            tags = tags)
+
+  }
+
+  iter_obj <- dxpy$find_data_objects(folder = path, describe=TRUE,
+                                     tags=tags, name=name,
+                                     name_mode = "glob", state=state
+  )
+  out_list <- reticulate::iterate(iter_obj, extract_fun)
+
+  out_frame <- NULL
+
+  if(length(out_list)>0){
+    out_frame <- purrr::reduce(out_list, rbind)
+  }
+
+  if(is.null(out_frame)){
+    cli::cli_alert("No files found in project")
+  }
+  out_frame
+
+}
+
+
 #' List fields associated with dataset ID
 #'
 #' Given a dataset ID generated from get_dataset_id(), runs `dx extract_dataset`
@@ -259,7 +302,7 @@ find_all_jobs <- function(){
 #' ds_id <- get_dataset_id()
 #' field_frame <- list_fields(ds_id)
 #' }
-list_fields <- function(dataset_id=NULL) {
+find_fields <- function(dataset_id=NULL) {
   dxpy <- check_env()
 
   if(is.null(dataset_id)){
@@ -285,6 +328,14 @@ list_fields <- function(dataset_id=NULL) {
   out_fields
 }
 
+#' Given a dataset id, finds the dataset name
+#'
+#' @param id
+#'
+#' @return ds_name - the name of the dataset
+#' @export
+#'
+#' @examples
 get_name_from_full_id <- function(id){
   dxpy <- check_env()
 
@@ -295,6 +346,7 @@ get_name_from_full_id <- function(id){
   ds_name <- dxpy$describe(id)
   ds_name$name
 }
+
 
 #' Given a dataset id, builds a coding table to decode raw data
 #'
@@ -399,7 +451,6 @@ strip_id_for_project <- function(ds_id){
 #' @param ...
 #'
 #' @return job_id Job ID of launched job
-#' @export
 #'
 #' @examples
 #'
@@ -457,13 +508,13 @@ launch_table_exporter <- function(ds_id, field_list, entity="participant",...){
 
 }
 
+
 #' Watches a job given a job id
 #'
 #' @param job_id - job id in the format of `job-XXXXXX`.
 #'
 #' @return file_id - If a CSV file was generated in the job, otherwise NULL. Prints alert
 #' to screen of job status and job_id for file generated.
-#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -499,7 +550,6 @@ check_job <- function(job_id){
 #' @param job_id
 #'
 #' @return Nothing - alert that job has been terminated.
-#' @export
 #'
 #' @examples
 terminate_job <- function(job_id) {

@@ -8,7 +8,7 @@ install_dxpy(method = "auto", conda = "auto")
 }
 \value{
 no-value. Side effect is that dxpy and pandas are installed
-into reticulate environment.
+into \code{r-reticulate} environment.
 }
 \description{
 Not needed for running in JupyterLab/RStudio on UKB RAP or JupyterLab on

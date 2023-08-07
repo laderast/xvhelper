@@ -10,7 +10,16 @@ title: "Downloading Pheno Data in JupyterLab/RStudio"
 
 If we are running JupyterLab or RStudio on the RAP/DNAnexus platform, we can use `xvhelper` to automate our downloading and decoding of the Pheno Data.
 
+## Install `xvhelper` if necessary
+
+```{r eval=FALSE}
+install.packages("remotes")
+remotes::install_github("laderast/xvhelper")
+```
+
 ## UKB RAP RStudio only
+
+The RStudio version on UKB RAP needs an updated dx-toolkit to use this functionality. You can run the code below to update it and install pandas.
 
 ```{bash eval=FALSE}
 pip3 install dxpy==0.354.0
@@ -18,9 +27,9 @@ pip3 install pandas
 ```
 
 ```{r eval=FALSE}
-install.packages("remotes")
-remotes::install_github("laderast/xvhelper")
+reticulate::use_python("/usr/bin/python3")
 ```
+
 
 ## Starting Out
 
@@ -84,8 +93,11 @@ Let's read in the data file in.
 
 ```{r}
 #| message: false
+ds_name <- get_name_from_full_id(ds_id)
 
-data <- readr::read_csv("apollo_ukrap_synth_pheno_100k.data.csv", show_col_types = FALSE)
+ds_file <- glue::glue("{ds_name}.data.csv")
+
+data <- readr::read_csv(ds_file, show_col_types = FALSE)
 head(data)
 ```
 
