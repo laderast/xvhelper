@@ -296,6 +296,7 @@ find_files <- function(path="/", tags=NULL,
 #'
 #' @return data.frame of all field IDs associated with the dataset
 #'
+#' @export
 #' @examples
 #'
 #' \dontrun{
@@ -452,6 +453,8 @@ strip_id_for_project <- function(ds_id){
 #'
 #' @return job_id Job ID of launched job
 #'
+#' @export
+#'
 #' @examples
 #'
 #' \dontrun{
@@ -516,6 +519,8 @@ launch_table_exporter <- function(ds_id, field_list, entity="participant",...){
 #' @return file_id - If a CSV file was generated in the job, otherwise NULL. Prints alert
 #' to screen of job status and job_id for file generated.
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' ds_id <- find_dataset_id()
@@ -550,6 +555,8 @@ check_job <- function(job_id){
 #' @param job_id
 #'
 #' @return Nothing - alert that job has been terminated.
+#'
+#' @export
 #'
 #' @examples
 terminate_job <- function(job_id) {

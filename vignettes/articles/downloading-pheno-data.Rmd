@@ -76,10 +76,6 @@ In the next step, we'll need a list of fields. We can explore the list of fields
 explore_field_list(ds_id)
 ```
 
-```{r}
-
-```
-
 ## Extracting Data
 
 Now that we have the dataset id, we can extract the data into our RStudio Project. By default, `extract_data()` will save the data as a file into our current working directory.

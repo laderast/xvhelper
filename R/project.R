@@ -23,6 +23,8 @@
 #' }
 explore_field_list <- function(ds_id, path=".") {
 
+  htmltools::htmlDependency(name = "clippo", src="clippo", script="clippo.js")
+
   app_name <- get_name_from_full_id(ds_id)
 
   if(length(app_name)==0){
@@ -43,12 +45,33 @@ explore_field_list <- function(ds_id, path=".") {
     dplyr::select(title, entity, name) |>
     dplyr::mutate(ent_field = glue::glue("{entity}.{name}"))
 
+  htmltools::tagList(
+    htmltools::tags$button("Copy to Clipboard", onclick = "get_selected_fields('explore')"),
     reactable::reactable(field_table,
                          searchable = TRUE,
                          selection = "multiple",
                          elementId = "explore")
+  )
 }
 
+
+clippo_dep <- function(){
+  htmltools::htmlDependency(name = "clippo", package = "xvhelper", src=c(file="clippo"),
+                            script="clippo.js", version = "0.1")
+}
+
+reactable_explore <- function(field_frame){
+
+  htmltools::tagList(
+
+    htmltools::tags$button("Copy to Clipboard", onclick = "get_selected_fields('explore')"),
+    reactable::reactable(field_frame,
+                         searchable = TRUE,
+                         selection = "multiple",
+                         elementId = "explore"),
+    clippo_dep()
+  )
+}
 
 #' Returns cleaned field titles for a cohort dataset
 #'
