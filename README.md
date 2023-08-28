@@ -6,9 +6,12 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-Note: this package was recently named `dxhelper`. It has been renamed to
-`xvhelper` to reflect that it is not software that is released by
-DNAnexus product.
+> Note: This package will be transferred over to a DNAnexus repository -
+> I will provide information about its location here when I can.
+
+> Note: this package was recently named `dxhelper`. It has been renamed
+> to `xvhelper` to reflect that it is not software that is released by
+> DNAnexus product.
 
 The goal of xvhelper is to provide an tidy interface to extracting and
 decoding raw values from exported Apollo datasets, whether they are
