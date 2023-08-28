@@ -6,7 +6,7 @@
 #' Useful for using xvhelper on your own machine.
 #'
 #' @return no-value. Side effect is that dxpy and pandas are installed
-#' into `r-reticulate` environment.
+#' into the `r-reticulate` environment.
 #' @export
 #'
 #' @examples
@@ -22,9 +22,7 @@ install_dxpy <- function(method="auto", conda="auto") {
 #  }
   reticulate::py_install(packages=c("pandas"), method=method, auto=auto)
   reticulate::py_install(packages=c("dxpy"), method=method, auto=auto, channel="bioconda")
-  #reticulate::virtualenv_install(env_name, packages = c("dxpy", "pandas"))
   cli::cli_alert_success("dxpy is now installed")
-  #cli::cli_alert_success("use reticulate::use_virtualenv('{env_name}') to use")
 
 }
 
