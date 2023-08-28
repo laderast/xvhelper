@@ -32,10 +32,13 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab/RStudio</a>
+      <a href="../articles/Running-Table-Exporter.html">Running Table Exporter</a>
     </li>
     <li>
       <a href="../articles/decode_apollo_datasets.html">Decoding Apollo Datasets with xvhelper</a>
+    </li>
+    <li>
+      <a href="../articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab/RStudio</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -63,7 +66,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">launch_table_exporter</span><span class="op">(</span><span class="va">ds_id</span>, <span class="va">field_list</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">launch_table_exporter</span><span class="op">(</span><span class="va">ds_id</span>, <span class="va">field_list</span>, entity <span class="op">=</span> <span class="st">"participant"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -88,7 +91,7 @@
 <span class="r-in"><span><span class="va">job_id</span> <span class="op">&lt;-</span> <span class="fu">launch_table_exporter</span><span class="op">(</span><span class="va">ds_id</span>, <span class="va">fields</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Watch our job</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="watch_job.html">watch_job</a></span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="check_job.html">check_job</a></span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Terminate our job if necessary</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="terminate_job.html">terminate_job</a></span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span></span>
