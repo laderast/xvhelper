@@ -316,7 +316,7 @@ decoded_cohort |>
 | sample_100_384  | D12 Benign neoplasm of colon, rectum, anus and anal canal                                                                             |
 | sample_100_384  | D10-D36 Benign neoplasms                                                                                                              |
 
-## New (7/2423) Incremental Decoding of Very Large Data Frames
+## New (7/24/23) Incremental Decoding of Very Large Data Frames
 
 One thing to note is that decoding a large dataset (for UKB Pheno data,
 this can be over 500K rows) takes time. The new function

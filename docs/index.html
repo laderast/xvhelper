@@ -1036,7 +1036,7 @@
 </table>
 </div>
 <div class="section level2">
-<h2 id="new-72423-incremental-decoding-of-very-large-data-frames">New (7/2423) Incremental Decoding of Very Large Data Frames<a class="anchor" aria-label="anchor" href="#new-72423-incremental-decoding-of-very-large-data-frames"></a>
+<h2 id="new-72423-incremental-decoding-of-very-large-data-frames">New (7/24/23) Incremental Decoding of Very Large Data Frames<a class="anchor" aria-label="anchor" href="#new-72423-incremental-decoding-of-very-large-data-frames"></a>
 </h2>
 <p>One thing to note is that decoding a large dataset (for UKB Pheno data, this can be over 500K rows) takes time. The new function <code><a href="reference/decode_multi_large_df.html">decode_multi_large_df()</a></code> will split the dataset into a number of data frames, the size of which is specified by <code>df_size</code>, which is then processed one data frame at a time, with a progress bar.</p>
 <p>This is not necessarily faster, but it does give the user a sense of progress.</p>
