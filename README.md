@@ -6,9 +6,6 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-> Note: This package will be transferred over to a DNAnexus repository -
-> I will provide information about its location here when I can.
-
 > Note: this package was recently named `dxhelper`. It has been renamed
 > to `xvhelper` to reflect that it is not software that is released by
 > DNAnexus product.

@@ -58,9 +58,6 @@
     <li>
       <a href="articles/downloading-pheno-data.html">Downloading Pheno Data in JupyterLab/RStudio</a>
     </li>
-    <li>
-      <a href="articles/readme-old.html">Old doc</a>
-    </li>
   </ul>
 </li>
       </ul>
@@ -89,8 +86,1289 @@
 <!-- badges: start -->
 <!-- badges: end -->
 <blockquote>
-<p>Note: This package will be transferred over to a DNAnexus repository - I will provide information about its location here when I can.</p>
+<p>Note: this package was recently named <code>dxhelper</code>. It has been renamed to <code>xvhelper</code> to reflect that it is not software that is released by DNAnexus product.</p>
 </blockquote>
+<p>The goal of xvhelper is to provide an tidy interface to extracting and decoding raw values from exported Apollo datasets, whether they are exported from <code>dx extract_dataset</code> or through a SparkSQL query.</p>
+<p>Given the data dictionary and the codings files, it will decode the categorical values from the raw data.</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>You can install the development version of xvhelper from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"laderast/xvhelper"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="note-about-example-data">Note about example data<a class="anchor" aria-label="anchor" href="#note-about-example-data"></a>
+</h2>
+<p>All examples are shown with synthetic data. These are not actual patients from UKB RAP.</p>
+</div>
+<div class="section level2">
+<h2 id="read-in-csv-file-or-sql-generated-dataframe">Read in CSV file or SQL generated <code>data.frame</code>
+<a class="anchor" aria-label="anchor" href="#read-in-csv-file-or-sql-generated-dataframe"></a>
+</h2>
+<p><a href="https://github.com/laderast/xvhelper" class="external-link">xvhelper</a> works with both the CSV files that is generated from <code>dx extract_dataset</code> or the <code>data.frame</code> that is generated from running the Spark SQL query.</p>
+<p>If you need to load the CSV file in, <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_csv</a></code> is recommended:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="st">"my_dataset.csv"</span>, show_col_types<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="build-coding-dictionary">Build coding dictionary<a class="anchor" aria-label="anchor" href="#build-coding-dictionary"></a>
+</h2>
+<p>We’ll need two <code>data.frame</code>s: a <code>coding_dict</code> and a <code>data_dict</code>. These are <code>data.frame</code>s from the <code>.coding.csv</code> and <code>data_dictionary.csv</code> files that are generated with the <code>-ddd</code> (dump dataset dictionary) option of <code>dx extract_dataset</code>. We read them in using <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_csv</a></code>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coding_dict</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="st">"my_dataset.coding.csv"</span>, show_col_types<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">data_dict</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="st">"my_dataset.data_dictionary.csv"</span> , show_col_types<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>Then we’ll build a coding dictionary by combining <code>coding_dict</code> and <code>data_dict</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">merged_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/merge_coding_data_dict.html">merge_coding_data_dict</a></span><span class="op">(</span><span class="va">coding_dict</span>, <span class="va">data_dict</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 9</span></span>
+<span><span class="co">#&gt;   title        ent_field entity name  coding_name code  meaning is_sparse_coding</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;        &lt;glue&gt;    &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;           </span></span>
+<span><span class="co">#&gt; 1 Coffee cons… particip… parti… p100… data_codin… 0     No      &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt; 2 Coffee cons… particip… parti… p100… data_codin… 1     Yes     &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt; 3 Coffee cons… particip… parti… p100… data_codin… 0     No      &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt; 4 Coffee cons… particip… parti… p100… data_codin… 1     Yes     &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt; 5 Sex of baby  particip… parti… p412… data_codin… 9     Not sp… &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt; 6 Sex of baby  particip… parti… p412… data_codin… 3     Indete… &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt; # ℹ 1 more variable: is_multi_select &lt;chr&gt;</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="decoding-integer-categories-of-apollo-datasets">Decoding Integer Categories of Apollo Datasets<a class="anchor" aria-label="anchor" href="#decoding-integer-categories-of-apollo-datasets"></a>
+</h2>
+<p>Categorical data is returned by <code>dx extract_dataset</code> as the integer representation. To see the actual values, they must be decoded from the <code>codings.csv</code> that is generated from <code>dx extract_dataset</code>.</p>
+<p>Data fields that have multiple categories must also be parsed and decoded. If the data is a sparse field, it is a combined categorical/numerical field.</p>
+</div>
+<div class="section level2">
+<h2 id="show-raw-cohort-file">Show Raw Cohort File<a class="anchor" aria-label="anchor" href="#show-raw-cohort-file"></a>
+</h2>
+<p>Here’s a cohort that was returned by <code>dx extract_dataset</code>. Note that there are multiple columns encoded as categories. We need to decode these values.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cohort</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">14</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="15%">
+<col width="18%">
+<col width="18%">
+<col width="18%">
+<col width="18%">
+<col width="12%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">participant.p21022</th>
+<th align="right">participant.p100240_i0</th>
+<th align="right">participant.p100240_i1</th>
+<th align="right">participant.p100240_i2</th>
+<th align="right">participant.p100240_i3</th>
+<th align="right">participant.p31</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">43</td>
+<td align="right">NA</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">60</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">53</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">62</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">67</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">61</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="decode-columns">Decode Columns<a class="anchor" aria-label="anchor" href="#decode-columns"></a>
+</h2>
+<p>We can decode the integer values into the actual values using <code>decode_categories</code> and our <code>merged_code</code> object:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">decoded_cohort</span> <span class="op">&lt;-</span> <span class="va">cohort</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/decode_df.html">decode_df</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">decoded_cohort</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">14</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="15%">
+<col width="18%">
+<col width="18%">
+<col width="18%">
+<col width="18%">
+<col width="12%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">participant.p21022</th>
+<th align="left">participant.p100240_i0</th>
+<th align="left">participant.p100240_i1</th>
+<th align="left">participant.p100240_i2</th>
+<th align="left">participant.p100240_i3</th>
+<th align="left">participant.p31</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">43</td>
+<td align="left">NA</td>
+<td align="left">Yes</td>
+<td align="left">Yes</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="even">
+<td align="right">60</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="odd">
+<td align="right">53</td>
+<td align="left">NA</td>
+<td align="left">No</td>
+<td align="left">No</td>
+<td align="left">No</td>
+<td align="left">Female</td>
+</tr>
+<tr class="even">
+<td align="right">62</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="odd">
+<td align="right">67</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="even">
+<td align="right">61</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="decode-column-names">Decode Column Names<a class="anchor" aria-label="anchor" href="#decode-column-names"></a>
+</h2>
+<p>Optionally, you can also decode the column names in the table to be R-friendly column names with the actual field titles:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">final_cohort</span> <span class="op">&lt;-</span> <span class="va">decoded_cohort</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/decode_column_names.html">decode_column_names</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">final_cohort</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">14</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="14%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="5%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">age_at_recruitment</th>
+<th align="left">coffee_consumed_instance_0</th>
+<th align="left">coffee_consumed_instance_1</th>
+<th align="left">coffee_consumed_instance_2</th>
+<th align="left">coffee_consumed_instance_3</th>
+<th align="left">sex</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">43</td>
+<td align="left">NA</td>
+<td align="left">Yes</td>
+<td align="left">Yes</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="even">
+<td align="right">60</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="odd">
+<td align="right">53</td>
+<td align="left">NA</td>
+<td align="left">No</td>
+<td align="left">No</td>
+<td align="left">No</td>
+<td align="left">Female</td>
+</tr>
+<tr class="even">
+<td align="right">62</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="odd">
+<td align="right">67</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="even">
+<td align="right">61</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+</tbody>
+</table>
+<p>If you want the original field names with no modifications, you can set the argument <code>r_clean_names</code> to <code>FALSE</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">final_cohort2</span> <span class="op">&lt;-</span> <span class="va">decoded_cohort</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/decode_column_names.html">decode_column_names</a></span><span class="op">(</span><span class="va">merged_code</span>, r_clean_names<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">final_cohort2</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">14</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="13%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="5%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">Age at recruitment</th>
+<th align="left">Coffee consumed | Instance 0</th>
+<th align="left">Coffee consumed | Instance 1</th>
+<th align="left">Coffee consumed | Instance 2</th>
+<th align="left">Coffee consumed | Instance 3</th>
+<th align="left">Sex</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">43</td>
+<td align="left">NA</td>
+<td align="left">Yes</td>
+<td align="left">Yes</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="even">
+<td align="right">60</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="odd">
+<td align="right">53</td>
+<td align="left">NA</td>
+<td align="left">No</td>
+<td align="left">No</td>
+<td align="left">No</td>
+<td align="left">Female</td>
+</tr>
+<tr class="even">
+<td align="right">62</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="odd">
+<td align="right">67</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+<tr class="even">
+<td align="right">61</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="separating-out-single-and-multi-column-decodes">Separating out single and multi column decodes<a class="anchor" aria-label="anchor" href="#separating-out-single-and-multi-column-decodes"></a>
+</h2>
+<p>You can have a little more control if you use the two <code>decode_</code> functions, <code><a href="reference/decode_single.html">decode_single()</a></code> and <code><a href="reference/decode_multi_purrr.html">decode_multi_purrr()</a></code>:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">decoded_cohort</span> <span class="op">&lt;-</span> <span class="va">mydf</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,<span class="op">]</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/decode_single.html">decode_single</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/decode_multi_purrr.html">decode_multi_purrr</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/decode_column_names.html">decode_column_names</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">decoded_cohort</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="1%">
+<col width="1%">
+<col width="3%">
+<col width="3%">
+<col width="1%">
+<col width="74%">
+<col width="0%">
+<col width="0%">
+<col width="4%">
+<col width="4%">
+<col width="4%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">participant_eid</th>
+<th align="right">age_at_recruitment</th>
+<th align="left">coffee_type_instance_0</th>
+<th align="left">coffee_type_instance_1</th>
+<th align="left">coffee_type_instance_2</th>
+<th align="left">diagnoses_main_icd10</th>
+<th align="left">sex</th>
+<th align="left">sex_of_baby</th>
+<th align="left">smoked_cigarette_or_pipe_within_last_hour_instance_0</th>
+<th align="left">smoked_cigarette_or_pipe_within_last_hour_instance_1</th>
+<th align="left">smoked_cigarette_or_pipe_within_last_hour_instance_2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="right">43</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">R07.3 Other chest pain|Z09.9 Follow-up examination after unspecified treatment for other conditions|I83.9 Varicose veins of lower extremities without ulcer or inflammation|Z30.5 Surveillance of (intra-uterine) contraceptive device|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified|Z09 Follow-up examination after treatment for conditions other than malignant neoplasms|Z00-Z13 Persons encountering health services for examination and investigation|Chapter XXI Factors influencing health status and contact with health services|I83 Varicose veins of lower extremities|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified|Chapter IX Diseases of the circulatory system|Z30 Contraceptive management|Z30-Z39 Persons encountering health services in circumstances related to reproduction</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">No</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_142</td>
+<td align="right">60</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">J32.0 Chronic maxillary sinusitis|R10.3 Pain localised to other parts of lower abdomen|J32 Chronic sinusitis|J30-J39 Other diseases of upper respiratory tract|Chapter X Diseases of the respiratory system|R10 Abdominal and pelvic pain|R10-R19 Symptoms and signs involving the digestive system and abdomen|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_285</td>
+<td align="right">53</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_290</td>
+<td align="right">62</td>
+<td align="left">Instant coffee</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">R07.3 Other chest pain|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_304</td>
+<td align="right">67</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">I87.1 Compression of vein|I87 Other disorders of veins|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified|Chapter IX Diseases of the circulatory system</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_328</td>
+<td align="right">61</td>
+<td align="left">Decaffeinated coffee (any type)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">K01.1 Impacted teeth|K01 Embedded and impacted teeth|K00-K14 Diseases of oral cavity, salivary glands and jaws|Chapter XI Diseases of the digestive system</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_348</td>
+<td align="right">66</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Q66.8 Other congenital deformities of feet|G56.8 Other mononeuropathies of upper limb|R07.0 Pain in throat|Q66 Congenital deformities of feet|Q65-Q79 Congenital malformations and deformations of the musculoskeletal system|Chapter XVII Congenital malformations, deformations and chromosomal abnormalities|G56 Mononeuropathies of upper limb|G50-G59 Nerve, nerve root and plexus disorders|Chapter VI Diseases of the nervous system|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_36</td>
+<td align="right">56</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">I12.0 Hypertensive renal disease with renal failure|N43.3 Hydrocele, unspecified|G45.9 Transient cerebral ischaemic attack, unspecified|I12 Hypertensive renal disease|I10-I15 Hypertensive diseases|Chapter IX Diseases of the circulatory system|N43 Hydrocele and spermatocele|N40-N51 Diseases of male genital organs|Chapter XIV Diseases of the genitourinary system|G45 Transient cerebral ischaemic attacks and related syndromes|G40-G47 Episodic and paroxysmal disorders|Chapter VI Diseases of the nervous system</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_362</td>
+<td align="right">55</td>
+<td align="left">Instant coffee</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Z03.9 Observation for suspected disease or condition, unspecified|Q66.8 Other congenital deformities of feet|M20.1 Hallux valgus (acquired)|Z03 Medical observation and evaluation for suspected diseases and conditions|Z00-Z13 Persons encountering health services for examination and investigation|Chapter XXI Factors influencing health status and contact with health services|Q66 Congenital deformities of feet|Q65-Q79 Congenital malformations and deformations of the musculoskeletal system|Chapter XVII Congenital malformations, deformations and chromosomal abnormalities|M20 Acquired deformities of fingers and toes|M20-M25 Other joint disorders|Chapter XIII Diseases of the musculoskeletal system and connective tissue</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="right">53</td>
+<td align="left">Decaffeinated coffee (any type)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Z87.1 Personal history of diseases of the digestive system|C61 Malignant neoplasm of prostate|M75.1 Rotator cuff syndrome|R31 Unspecified haematuria|D12.5 Sigmoid colon|Z87 Personal history of other diseases and conditions|Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status|Chapter XXI Factors influencing health status and contact with health services|C60-C63 Malignant neoplasms of male genital organs|Chapter II Neoplasms|M75 Shoulder lesions|M70-M79 Other soft tissue disorders|Chapter XIII Diseases of the musculoskeletal system and connective tissue|R30-R39 Symptoms and signs involving the urinary system|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified|D12 Benign neoplasm of colon, rectum, anus and anal canal|D10-D36 Benign neoplasms</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="multi-valued-columns">Multi-valued columns<a class="anchor" aria-label="anchor" href="#multi-valued-columns"></a>
+</h2>
+<p>Multivalued columns are returned as a pipe (<code>|</code>) delimited string (this is to avoid issues with commas within categorical values):</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">decoded_cohort</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,<span class="st">"diagnoses_main_icd10"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup><col width="100%"></colgroup>
+<thead><tr class="header">
+<th align="left">x</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">R07.3 Other chest pain|Z09.9 Follow-up examination after unspecified treatment for other conditions|I83.9 Varicose veins of lower extremities without ulcer or inflammation|Z30.5 Surveillance of (intra-uterine) contraceptive device|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified|Z09 Follow-up examination after treatment for conditions other than malignant neoplasms|Z00-Z13 Persons encountering health services for examination and investigation|Chapter XXI Factors influencing health status and contact with health services|I83 Varicose veins of lower extremities|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified|Chapter IX Diseases of the circulatory system|Z30 Contraceptive management|Z30-Z39 Persons encountering health services in circumstances related to reproduction</td>
+</tr>
+<tr class="even">
+<td align="left">J32.0 Chronic maxillary sinusitis|R10.3 Pain localised to other parts of lower abdomen|J32 Chronic sinusitis|J30-J39 Other diseases of upper respiratory tract|Chapter X Diseases of the respiratory system|R10 Abdominal and pelvic pain|R10-R19 Symptoms and signs involving the digestive system and abdomen|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">R07.3 Other chest pain|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+</tr>
+<tr class="odd">
+<td align="left">I87.1 Compression of vein|I87 Other disorders of veins|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified|Chapter IX Diseases of the circulatory system</td>
+</tr>
+<tr class="even">
+<td align="left">K01.1 Impacted teeth|K01 Embedded and impacted teeth|K00-K14 Diseases of oral cavity, salivary glands and jaws|Chapter XI Diseases of the digestive system</td>
+</tr>
+<tr class="odd">
+<td align="left">Q66.8 Other congenital deformities of feet|G56.8 Other mononeuropathies of upper limb|R07.0 Pain in throat|Q66 Congenital deformities of feet|Q65-Q79 Congenital malformations and deformations of the musculoskeletal system|Chapter XVII Congenital malformations, deformations and chromosomal abnormalities|G56 Mononeuropathies of upper limb|G50-G59 Nerve, nerve root and plexus disorders|Chapter VI Diseases of the nervous system|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+</tr>
+<tr class="even">
+<td align="left">I12.0 Hypertensive renal disease with renal failure|N43.3 Hydrocele, unspecified|G45.9 Transient cerebral ischaemic attack, unspecified|I12 Hypertensive renal disease|I10-I15 Hypertensive diseases|Chapter IX Diseases of the circulatory system|N43 Hydrocele and spermatocele|N40-N51 Diseases of male genital organs|Chapter XIV Diseases of the genitourinary system|G45 Transient cerebral ischaemic attacks and related syndromes|G40-G47 Episodic and paroxysmal disorders|Chapter VI Diseases of the nervous system</td>
+</tr>
+<tr class="odd">
+<td align="left">Z03.9 Observation for suspected disease or condition, unspecified|Q66.8 Other congenital deformities of feet|M20.1 Hallux valgus (acquired)|Z03 Medical observation and evaluation for suspected diseases and conditions|Z00-Z13 Persons encountering health services for examination and investigation|Chapter XXI Factors influencing health status and contact with health services|Q66 Congenital deformities of feet|Q65-Q79 Congenital malformations and deformations of the musculoskeletal system|Chapter XVII Congenital malformations, deformations and chromosomal abnormalities|M20 Acquired deformities of fingers and toes|M20-M25 Other joint disorders|Chapter XIII Diseases of the musculoskeletal system and connective tissue</td>
+</tr>
+<tr class="even">
+<td align="left">Z87.1 Personal history of diseases of the digestive system|C61 Malignant neoplasm of prostate|M75.1 Rotator cuff syndrome|R31 Unspecified haematuria|D12.5 Sigmoid colon|Z87 Personal history of other diseases and conditions|Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status|Chapter XXI Factors influencing health status and contact with health services|C60-C63 Malignant neoplasms of male genital organs|Chapter II Neoplasms|M75 Shoulder lesions|M70-M79 Other soft tissue disorders|Chapter XIII Diseases of the musculoskeletal system and connective tissue|R30-R39 Symptoms and signs involving the urinary system|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified|D12 Benign neoplasm of colon, rectum, anus and anal canal|D10-D36 Benign neoplasms</td>
+</tr>
+</tbody>
+</table>
+<p>If we want to split these out, we can use <code><a href="https://tidyr.tidyverse.org/reference/separate_longer_delim.html" class="external-link">tidyr::separate_longer_delim()</a></code>:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">decoded_cohort</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">participant_eid</span>, <span class="va">diagnoses_main_icd10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/separate_longer_delim.html" class="external-link">separate_longer_delim</a></span><span class="op">(</span><span class="va">diagnoses_main_icd10</span>, delim<span class="op">=</span><span class="st">"|"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="11%">
+<col width="88%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">participant_eid</th>
+<th align="left">diagnoses_main_icd10</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="left">R07.3 Other chest pain</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_116</td>
+<td align="left">Z09.9 Follow-up examination after unspecified treatment for other conditions</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="left">I83.9 Varicose veins of lower extremities without ulcer or inflammation</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_116</td>
+<td align="left">Z30.5 Surveillance of (intra-uterine) contraceptive device</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="left">R07 Pain in throat and chest</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_116</td>
+<td align="left">R00-R09 Symptoms and signs involving the circulatory and respiratory systems</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="left">Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_116</td>
+<td align="left">Z09 Follow-up examination after treatment for conditions other than malignant neoplasms</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="left">Z00-Z13 Persons encountering health services for examination and investigation</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_116</td>
+<td align="left">Chapter XXI Factors influencing health status and contact with health services</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="left">I83 Varicose veins of lower extremities</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_116</td>
+<td align="left">I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="left">Chapter IX Diseases of the circulatory system</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_116</td>
+<td align="left">Z30 Contraceptive management</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="left">Z30-Z39 Persons encountering health services in circumstances related to reproduction</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_142</td>
+<td align="left">J32.0 Chronic maxillary sinusitis</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_142</td>
+<td align="left">R10.3 Pain localised to other parts of lower abdomen</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_142</td>
+<td align="left">J32 Chronic sinusitis</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_142</td>
+<td align="left">J30-J39 Other diseases of upper respiratory tract</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_142</td>
+<td align="left">Chapter X Diseases of the respiratory system</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_142</td>
+<td align="left">R10 Abdominal and pelvic pain</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_142</td>
+<td align="left">R10-R19 Symptoms and signs involving the digestive system and abdomen</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_142</td>
+<td align="left">Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_285</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_290</td>
+<td align="left">R07.3 Other chest pain</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_290</td>
+<td align="left">R07 Pain in throat and chest</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_290</td>
+<td align="left">R00-R09 Symptoms and signs involving the circulatory and respiratory systems</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_290</td>
+<td align="left">Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_304</td>
+<td align="left">I87.1 Compression of vein</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_304</td>
+<td align="left">I87 Other disorders of veins</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_304</td>
+<td align="left">I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_304</td>
+<td align="left">Chapter IX Diseases of the circulatory system</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_328</td>
+<td align="left">K01.1 Impacted teeth</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_328</td>
+<td align="left">K01 Embedded and impacted teeth</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_328</td>
+<td align="left">K00-K14 Diseases of oral cavity, salivary glands and jaws</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_328</td>
+<td align="left">Chapter XI Diseases of the digestive system</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_348</td>
+<td align="left">Q66.8 Other congenital deformities of feet</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_348</td>
+<td align="left">G56.8 Other mononeuropathies of upper limb</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_348</td>
+<td align="left">R07.0 Pain in throat</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_348</td>
+<td align="left">Q66 Congenital deformities of feet</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_348</td>
+<td align="left">Q65-Q79 Congenital malformations and deformations of the musculoskeletal system</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_348</td>
+<td align="left">Chapter XVII Congenital malformations, deformations and chromosomal abnormalities</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_348</td>
+<td align="left">G56 Mononeuropathies of upper limb</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_348</td>
+<td align="left">G50-G59 Nerve, nerve root and plexus disorders</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_348</td>
+<td align="left">Chapter VI Diseases of the nervous system</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_348</td>
+<td align="left">R07 Pain in throat and chest</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_348</td>
+<td align="left">R00-R09 Symptoms and signs involving the circulatory and respiratory systems</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_348</td>
+<td align="left">Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_36</td>
+<td align="left">I12.0 Hypertensive renal disease with renal failure</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_36</td>
+<td align="left">N43.3 Hydrocele, unspecified</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_36</td>
+<td align="left">G45.9 Transient cerebral ischaemic attack, unspecified</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_36</td>
+<td align="left">I12 Hypertensive renal disease</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_36</td>
+<td align="left">I10-I15 Hypertensive diseases</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_36</td>
+<td align="left">Chapter IX Diseases of the circulatory system</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_36</td>
+<td align="left">N43 Hydrocele and spermatocele</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_36</td>
+<td align="left">N40-N51 Diseases of male genital organs</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_36</td>
+<td align="left">Chapter XIV Diseases of the genitourinary system</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_36</td>
+<td align="left">G45 Transient cerebral ischaemic attacks and related syndromes</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_36</td>
+<td align="left">G40-G47 Episodic and paroxysmal disorders</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_36</td>
+<td align="left">Chapter VI Diseases of the nervous system</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_362</td>
+<td align="left">Z03.9 Observation for suspected disease or condition, unspecified</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_362</td>
+<td align="left">Q66.8 Other congenital deformities of feet</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_362</td>
+<td align="left">M20.1 Hallux valgus (acquired)</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_362</td>
+<td align="left">Z03 Medical observation and evaluation for suspected diseases and conditions</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_362</td>
+<td align="left">Z00-Z13 Persons encountering health services for examination and investigation</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_362</td>
+<td align="left">Chapter XXI Factors influencing health status and contact with health services</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_362</td>
+<td align="left">Q66 Congenital deformities of feet</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_362</td>
+<td align="left">Q65-Q79 Congenital malformations and deformations of the musculoskeletal system</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_362</td>
+<td align="left">Chapter XVII Congenital malformations, deformations and chromosomal abnormalities</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_362</td>
+<td align="left">M20 Acquired deformities of fingers and toes</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_362</td>
+<td align="left">M20-M25 Other joint disorders</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_362</td>
+<td align="left">Chapter XIII Diseases of the musculoskeletal system and connective tissue</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_384</td>
+<td align="left">Z87.1 Personal history of diseases of the digestive system</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="left">C61 Malignant neoplasm of prostate</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_384</td>
+<td align="left">M75.1 Rotator cuff syndrome</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="left">R31 Unspecified haematuria</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_384</td>
+<td align="left">D12.5 Sigmoid colon</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="left">Z87 Personal history of other diseases and conditions</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_384</td>
+<td align="left">Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="left">Chapter XXI Factors influencing health status and contact with health services</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_384</td>
+<td align="left">C60-C63 Malignant neoplasms of male genital organs</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="left">Chapter II Neoplasms</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_384</td>
+<td align="left">M75 Shoulder lesions</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="left">M70-M79 Other soft tissue disorders</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_384</td>
+<td align="left">Chapter XIII Diseases of the musculoskeletal system and connective tissue</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="left">R30-R39 Symptoms and signs involving the urinary system</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_384</td>
+<td align="left">Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="left">D12 Benign neoplasm of colon, rectum, anus and anal canal</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_384</td>
+<td align="left">D10-D36 Benign neoplasms</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="new-72423-incremental-decoding-of-very-large-data-frames">New (7/24/23) Incremental Decoding of Very Large Data Frames<a class="anchor" aria-label="anchor" href="#new-72423-incremental-decoding-of-very-large-data-frames"></a>
+</h2>
+<p>One thing to note is that decoding a large dataset (for UKB Pheno data, this can be over 500K rows) takes time. The new function <code><a href="reference/decode_multi_large_df.html">decode_multi_large_df()</a></code> will split the dataset into a number of data frames, the size of which is specified by <code>df_size</code>, which is then processed one data frame at a time, with a progress bar.</p>
+<p>This is not necessarily faster, but it does give the user a sense of progress.</p>
+<p>Note that the default value for <code>df_size</code> is 1000. We’re only changing it here because the example data is smaller.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">decoded_cohort</span> <span class="op">&lt;-</span> <span class="va">mydf</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,<span class="op">]</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/decode_single.html">decode_single</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/decode_multi_large_df.html">decode_multi_large_df</a></span><span class="op">(</span><span class="va">merged_code</span>, df_size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/decode_column_names.html">decode_column_names</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">decoded_cohort</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="1%">
+<col width="1%">
+<col width="3%">
+<col width="3%">
+<col width="1%">
+<col width="74%">
+<col width="0%">
+<col width="0%">
+<col width="4%">
+<col width="4%">
+<col width="4%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">participant_eid</th>
+<th align="right">age_at_recruitment</th>
+<th align="left">coffee_type_instance_0</th>
+<th align="left">coffee_type_instance_1</th>
+<th align="left">coffee_type_instance_2</th>
+<th align="left">diagnoses_main_icd10</th>
+<th align="left">sex</th>
+<th align="left">sex_of_baby</th>
+<th align="left">smoked_cigarette_or_pipe_within_last_hour_instance_0</th>
+<th align="left">smoked_cigarette_or_pipe_within_last_hour_instance_1</th>
+<th align="left">smoked_cigarette_or_pipe_within_last_hour_instance_2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="right">43</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">R07.3 Other chest pain|Z09.9 Follow-up examination after unspecified treatment for other conditions|I83.9 Varicose veins of lower extremities without ulcer or inflammation|Z30.5 Surveillance of (intra-uterine) contraceptive device|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified|Z09 Follow-up examination after treatment for conditions other than malignant neoplasms|Z00-Z13 Persons encountering health services for examination and investigation|Chapter XXI Factors influencing health status and contact with health services|I83 Varicose veins of lower extremities|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified|Chapter IX Diseases of the circulatory system|Z30 Contraceptive management|Z30-Z39 Persons encountering health services in circumstances related to reproduction</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">No</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_142</td>
+<td align="right">60</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">J32.0 Chronic maxillary sinusitis|R10.3 Pain localised to other parts of lower abdomen|J32 Chronic sinusitis|J30-J39 Other diseases of upper respiratory tract|Chapter X Diseases of the respiratory system|R10 Abdominal and pelvic pain|R10-R19 Symptoms and signs involving the digestive system and abdomen|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_285</td>
+<td align="right">53</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_290</td>
+<td align="right">62</td>
+<td align="left">Instant coffee</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">R07.3 Other chest pain|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_304</td>
+<td align="right">67</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">I87.1 Compression of vein|I87 Other disorders of veins|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified|Chapter IX Diseases of the circulatory system</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_328</td>
+<td align="right">61</td>
+<td align="left">Decaffeinated coffee (any type)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">K01.1 Impacted teeth|K01 Embedded and impacted teeth|K00-K14 Diseases of oral cavity, salivary glands and jaws|Chapter XI Diseases of the digestive system</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_348</td>
+<td align="right">66</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Q66.8 Other congenital deformities of feet|G56.8 Other mononeuropathies of upper limb|R07.0 Pain in throat|Q66 Congenital deformities of feet|Q65-Q79 Congenital malformations and deformations of the musculoskeletal system|Chapter XVII Congenital malformations, deformations and chromosomal abnormalities|G56 Mononeuropathies of upper limb|G50-G59 Nerve, nerve root and plexus disorders|Chapter VI Diseases of the nervous system|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_36</td>
+<td align="right">56</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">I12.0 Hypertensive renal disease with renal failure|N43.3 Hydrocele, unspecified|G45.9 Transient cerebral ischaemic attack, unspecified|I12 Hypertensive renal disease|I10-I15 Hypertensive diseases|Chapter IX Diseases of the circulatory system|N43 Hydrocele and spermatocele|N40-N51 Diseases of male genital organs|Chapter XIV Diseases of the genitourinary system|G45 Transient cerebral ischaemic attacks and related syndromes|G40-G47 Episodic and paroxysmal disorders|Chapter VI Diseases of the nervous system</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_362</td>
+<td align="right">55</td>
+<td align="left">Instant coffee</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Z03.9 Observation for suspected disease or condition, unspecified|Q66.8 Other congenital deformities of feet|M20.1 Hallux valgus (acquired)|Z03 Medical observation and evaluation for suspected diseases and conditions|Z00-Z13 Persons encountering health services for examination and investigation|Chapter XXI Factors influencing health status and contact with health services|Q66 Congenital deformities of feet|Q65-Q79 Congenital malformations and deformations of the musculoskeletal system|Chapter XVII Congenital malformations, deformations and chromosomal abnormalities|M20 Acquired deformities of fingers and toes|M20-M25 Other joint disorders|Chapter XIII Diseases of the musculoskeletal system and connective tissue</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_384</td>
+<td align="right">53</td>
+<td align="left">Decaffeinated coffee (any type)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Z87.1 Personal history of diseases of the digestive system|C61 Malignant neoplasm of prostate|M75.1 Rotator cuff syndrome|R31 Unspecified haematuria|D12.5 Sigmoid colon|Z87 Personal history of other diseases and conditions|Z80-Z99 Persons with potential health hazards related to family and personal history and certain conditions influencing health status|Chapter XXI Factors influencing health status and contact with health services|C60-C63 Malignant neoplasms of male genital organs|Chapter II Neoplasms|M75 Shoulder lesions|M70-M79 Other soft tissue disorders|Chapter XIII Diseases of the musculoskeletal system and connective tissue|R30-R39 Symptoms and signs involving the urinary system|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified|D12 Benign neoplasm of colon, rectum, anus and anal canal|D10-D36 Benign neoplasms</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="returned-tables-from-sparksql">Returned tables from SparkSQL<a class="anchor" aria-label="anchor" href="#returned-tables-from-sparksql"></a>
+</h2>
+<p>If you use <code>dbGetQuery()</code> to fetch your table from Spark, multi-value columns will be returned as list-columns. <code>decode_df</code> will return a pipe-delimited string for these columns as well.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="va">mydf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 100 × 11</span></span>
+<span><span class="co">#&gt;    participant.eid participant.p21022 participant.p1508_i0 participant.p1508_i1</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                        &lt;dbl&gt;                &lt;dbl&gt;                &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 sample_100_116                  43                    3                   NA</span></span>
+<span><span class="co">#&gt;  2 sample_100_142                  60                    3                   NA</span></span>
+<span><span class="co">#&gt;  3 sample_100_285                  53                    3                   NA</span></span>
+<span><span class="co">#&gt;  4 sample_100_290                  62                    2                   NA</span></span>
+<span><span class="co">#&gt;  5 sample_100_304                  67                    3                   NA</span></span>
+<span><span class="co">#&gt;  6 sample_100_328                  61                    1                   NA</span></span>
+<span><span class="co">#&gt;  7 sample_100_348                  66                    3                   NA</span></span>
+<span><span class="co">#&gt;  8 sample_100_36                   56                    3                    3</span></span>
+<span><span class="co">#&gt;  9 sample_100_362                  55                    2                   NA</span></span>
+<span><span class="co">#&gt; 10 sample_100_384                  53                    1                   NA</span></span>
+<span><span class="co">#&gt; # ℹ 90 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 7 more variables: participant.p1508_i2 &lt;dbl&gt;, participant.p41202 &lt;list&gt;,</span></span>
+<span><span class="co">#&gt; #   participant.p31 &lt;dbl&gt;, participant.p41226 &lt;list&gt;,</span></span>
+<span><span class="co">#&gt; #   participant.p3159_i0 &lt;dbl&gt;, participant.p3159_i1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   participant.p3159_i2 &lt;dbl&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">from_db</span> <span class="op">&lt;-</span> <span class="va">mydf</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="reference/decode_df.html">decode_df</a></span><span class="op">(</span><span class="va">merged_code</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">from_db</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="1%">
+<col width="1%">
+<col width="3%">
+<col width="1%">
+<col width="1%">
+<col width="81%">
+<col width="1%">
+<col width="1%">
+<col width="1%">
+<col width="1%">
+<col width="1%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">participant.eid</th>
+<th align="right">participant.p21022</th>
+<th align="left">participant.p1508_i0</th>
+<th align="left">participant.p1508_i1</th>
+<th align="left">participant.p1508_i2</th>
+<th align="left">participant.p41202</th>
+<th align="left">participant.p31</th>
+<th align="left">participant.p41226</th>
+<th align="left">participant.p3159_i0</th>
+<th align="left">participant.p3159_i1</th>
+<th align="left">participant.p3159_i2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">sample_100_116</td>
+<td align="right">43</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">R07.3 Other chest pain|Z09.9 Follow-up examination after unspecified treatment for other conditions|I83.9 Varicose veins of lower extremities without ulcer or inflammation|Z30.5 Surveillance of (intra-uterine) contraceptive device|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified|Z09 Follow-up examination after treatment for conditions other than malignant neoplasms|Z00-Z13 Persons encountering health services for examination and investigation|Chapter XXI Factors influencing health status and contact with health services|I83 Varicose veins of lower extremities|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified|Chapter IX Diseases of the circulatory system|Z30 Contraceptive management|Z30-Z39 Persons encountering health services in circumstances related to reproduction</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">No</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_142</td>
+<td align="right">60</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">J32.0 Chronic maxillary sinusitis|R10.3 Pain localised to other parts of lower abdomen|J32 Chronic sinusitis|J30-J39 Other diseases of upper respiratory tract|Chapter X Diseases of the respiratory system|R10 Abdominal and pelvic pain|R10-R19 Symptoms and signs involving the digestive system and abdomen|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_285</td>
+<td align="right">53</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_290</td>
+<td align="right">62</td>
+<td align="left">Instant coffee</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">R07.3 Other chest pain|R07 Pain in throat and chest|R00-R09 Symptoms and signs involving the circulatory and respiratory systems|Chapter XVIII Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">sample_100_304</td>
+<td align="right">67</td>
+<td align="left">Ground coffee (include espresso, filter etc)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">I87.1 Compression of vein|I87 Other disorders of veins|I80-I89 Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified|Chapter IX Diseases of the circulatory system</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">sample_100_328</td>
+<td align="right">61</td>
+<td align="left">Decaffeinated coffee (any type)</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">K01.1 Impacted teeth|K01 Embedded and impacted teeth|K00-K14 Diseases of oral cavity, salivary glands and jaws|Chapter XI Diseases of the digestive system</td>
+<td align="left">Female</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="new-72823-extract-data-using-dx-toolkit">New (7/28/23) Extract data using <code>dx-toolkit</code>
+<a class="anchor" aria-label="anchor" href="#new-72823-extract-data-using-dx-toolkit"></a>
+</h2>
+<p><code>xvhelper</code> now contains a number of functions that help you extract and download pheno data using the <code>dx-toolkit</code> from your project. It does this by using <code>reticulate</code> to call the python <code>dxpy</code> package and using system calls to <code>dx extract_dataset</code>.</p>
+<p>These functions are designed to work within RStudio (on UKB RAP) or JupyterLab (on DNAnexus/UKB RAP).</p>
+<p><a href="https://laderast.github.io/xvhelper/articles/downloading-pheno-data.html" class="external-link">See the article</a> for more info.</p>
+</div>
+<div class="section level2">
+<h2 id="new-8323-run-table-exporter">New (8/3/23) Run Table Exporter<a class="anchor" aria-label="anchor" href="#new-8323-run-table-exporter"></a>
+</h2>
+<p>There is now the ability to run Table Exporter if your <code><a href="reference/extract_data.html">extract_data()</a></code> query fails. <a href="https://laderast.github.io/xvhelper/articles/Running-Table-Exporter.html" class="external-link">See the article</a></p>
+</div>
+<div class="section level2">
+<h2 id="caveatslimitations">Caveats/Limitations<a class="anchor" aria-label="anchor" href="#caveatslimitations"></a>
+</h2>
+<p><code><a href="reference/extract_data.html">extract_data()</a></code> is based on <code>dx extract_dataset</code> from the <code>dx-toolkit</code>. There are some limitations with queries, since it uses a shared resource called the Thrift server to extract data. You may get an error if you try to extract more than ~15 fields at once.</p>
+<p>See the above article about Running Table Exporter.</p>
+</div>
 </div>
   </div>
 
