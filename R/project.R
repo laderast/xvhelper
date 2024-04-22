@@ -284,7 +284,10 @@ decode_multi_purrr <- function(cohort, coding){
     #dplyr::mutate(across(-rown), as_character) |>
     tidyr::pivot_longer(-rown, names_to="col", values_to="code") |>
     dplyr::mutate(code :=
-                    stringr::str_replace_all(code, '\\[|\\]|\\"', "")) |>
+                    stringr::str_replace_all(code, '\\[|\\]|\\"' , "")) |>
+
+    dplyr::mutate(code :=
+                  stringr::str_replace_all(code, "\\'" , "")) |>
     #separate commaa delimited string in multicolumn to multiple rows
     tidyr::separate_rows(code, sep = ",")
 
@@ -292,7 +295,9 @@ decode_multi_purrr <- function(cohort, coding){
   #  tidyr::nest(col)
 
   test <- multi_cols |> dplyr::group_by(col) |> tidyr::nest(data=c(rown, code))
-  test2 <- coding |> dplyr::select(ent_field, coding_name, code, meaning) |> dplyr::group_by(ent_field, coding_name) |> tidyr::nest(data=c(code, meaning))
+  test2 <- coding |> dplyr::select(ent_field, coding_name, code, meaning) |>
+    dplyr::group_by(ent_field, coding_name) |>
+    tidyr::nest(data=c(code, meaning))
   test3 <- dplyr::left_join(test, test2, by=c("col"="ent_field"))
   test4 <- purrr::map2(test3$data.x, test3$data.y, ~(dplyr::left_join(.x,.y, by=c("code"))))
   names(test4) <- multi_columns
